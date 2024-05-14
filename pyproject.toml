@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "gsber"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+ortools = "^9.10.4067"
+geopandas = "^0.14.4"
+networkx = "^3.3"
+tqdm = "^4.66.4"
+scipy = "^1.13.0"
+scikit-learn = "^1.4.2"
+osmnx = "^1.9.3"
+requests = "^2.31.0"
+ipykernel = "^6.29.4"
+matplotlib = "^3.8.4"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
