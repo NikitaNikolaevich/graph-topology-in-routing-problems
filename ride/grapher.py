@@ -4,9 +4,8 @@ import numpy as np
 import random
 import math
 import time
-from tqdm import tqdm
 from typing import Dict, Tuple, List
-from gsber.utils import DataGenerator
+from ride.utils import DataGenerator
 
 class GraphProcessor:
     def create_G_centroid(H: nx.Graph) -> Tuple[nx.Graph, Dict[int, List[int]]]:
@@ -53,6 +52,7 @@ class GraphProcessor:
                     resolutions.append(resolution)
                     ks.append(k)
                     resolution *= 3
+                    resolution = round(resolution,3)
 
         return resolutions, ks, v1, e1
 
@@ -129,28 +129,40 @@ class GraphRunner:
 
         try:
             part = random.sample(res, k=k)
-        except ValueError:
+        except ValueError as ex:
+            print(ex)
             part = res
 
         output = {
-            'error': [],
-            'time_centr': [],
-            'times': [],
             'ks': [],
+            'errors_percent': [],
+            'time_preprocess_g_centroid_creation': [],
+            'time_preprocess_dijkstra_on_centroid_len': [],  
+            'time_dijkstra_base': float
         }
 
         # Compute the shortest path length between the pairs of nodes using Dijkstra's algorithm
-        output, all_length = GraphRunner.compute_shortest_path_length_dijkstra(H, part, weight, output)
+        time_base_dijkstra, all_length_dijkstra = GraphRunner.compute_shortest_path_length_dijkstra(H, part, weight)
+        output['time_dijkstra_base'] = time_base_dijkstra
 
         # Compute the shortest path length between the pairs of nodes using the centroid graph
-        output, mistakes = GraphRunner.compute_shortest_path_length_centroid(H, resolutions, part, all_length, weight, output)
+
+        errors_dict = {}
+        for c, resolution in enumerate(resolutions):
+            output, all_length_centroids = GraphRunner.compute_shortest_path_length_centroid(H, resolution, part, weight, output)
+            errors = GraphRunner.calculate_error(all_length_dijkstra, all_length_centroids)
+            output['errors_percent'].append(errors["total_errors"])
+
+            errors_dict[output['ks'][c]] = errors["all_errors"]
 
         output = pd.DataFrame(output)
-        mistakes = pd.DataFrame(mistakes)
+        errors_dict = pd.DataFrame(errors_dict)
 
-        return output, mistakes
+        output['speedup'] = output['time_dijkstra_base'] / output['time_preprocess_dijkstra_on_centroid_len']
 
-    def compute_shortest_path_length_dijkstra(H: nx.Graph, part: list, weight: str, output):
+        return output, errors_dict
+
+    def compute_shortest_path_length_dijkstra(H: nx.Graph, part: list, weight: str):
         """
         Compute the shortest path length between the pairs of nodes using Dijkstra's algorithm.
 
@@ -166,21 +178,28 @@ class GraphRunner:
         start = time.time()
         all_length = []
         print('\nТестирование на начальном графе:')
-        for i in tqdm(part):
+        for i in part:
             length, path1 = nx.single_source_dijkstra(H, i[0], i[1], weight=weight)
             all_length.append(length)
         end = time.time()
-        output['dijkstra_time'] = end - start
+        time_calc = end - start
 
-        return output, all_length
+        return time_calc, all_length
+    
+    def calculate_error(all_length, all_l_c):
+        errors = (np.array(all_l_c).sum() - np.array(all_length).sum()) / np.array(all_length).sum() * 100
+        errors_for_box_plot = (np.array(all_l_c) - np.array(all_length)) / np.array(all_length) * 100
 
-    def compute_shortest_path_length_centroid(H: nx.Graph, resolutions: list, part: list, all_length: list, weight: str, output):
+        return {"total_errors": errors, "all_errors": errors_for_box_plot}
+        
+
+    def compute_shortest_path_length_centroid(H: nx.Graph, resolution: int, part: list, weight: str, output):
         """
         Compute the shortest path length between the pairs of nodes using the centroid graph.
 
         Parameters:
         H (nx.Graph): The input graph.
-        resolutions (list): A list of resolution values to use for the Louvain clustering algorithm.
+        resolutions (int): Resolution value to use for the Louvain clustering algorithm.
         part (list): A list of random pairs of nodes.
         all_length (list): A list of shortest path lengths between the pairs of nodes computed using Dijkstra's algorithm.
         weight (str): The name of the edge attribute to use as the weight.
@@ -188,47 +207,40 @@ class GraphRunner:
         Returns:
         A pandas DataFrame containing the results of the test.
         """
-        mistakes = {
-        
-        }
+
         v1 = []
         e1  =[]
         print('\nТестирование на центроидах:')
-        for resolution in resolutions:
-            H, communities = GraphProcessor.louvain_clusters(H, resolution=resolution, weight=weight)
-            k = len(communities)/len(H.nodes)
-            output['ks'].append(round(k, 3))
+        H, communities = GraphProcessor.louvain_clusters(H, resolution=resolution, weight=weight)
+        k = len(communities)/len(H.nodes)
+        output['ks'].append(round(k, 3))
 
-            start_centr = time.time()
-            G_centroid, clusters = GraphProcessor.create_G_centroid(H)
-            end_centr = time.time() - start_centr
-            output['time_centr'].append(end_centr)
-            v1.append(len(G_centroid.nodes()))
-            e1.append(len(G_centroid.edges()))
+        centroid_g_time_creation_start = time.time()
+        G_centroid, clusters = GraphProcessor.create_G_centroid(H)
+        centroid_g_time_creation_end = time.time() - centroid_g_time_creation_start
 
-            all_l_c = []
-            start = time.time()
-            for i in tqdm(part):
+        output['time_preprocess_g_centroid_creation'].append(centroid_g_time_creation_end)
+        v1.append(len(G_centroid.nodes()))
+        e1.append(len(G_centroid.edges()))
 
-                cluster_1 = H.nodes(data=True)[i[0]]['cluster']
-                cluster_2 = H.nodes(data=True)[i[1]]['cluster']
-                leng_G = nx.dijkstra_path(G_centroid, cluster_1, cluster_2)
-                nodes = []
-                for g_name in leng_G:
-                    nodes.extend(clusters[g_name])
-                Hs = H.subgraph(nodes)
-                length,path2 = nx.single_source_dijkstra(Hs, i[0], i[1], weight='length')
+        all_l_c = []
+        start = time.time()
+        for i in part:
+            cluster_1 = H.nodes(data=True)[i[0]]['cluster']
+            cluster_2 = H.nodes(data=True)[i[1]]['cluster']
+            leng_G = nx.dijkstra_path(G_centroid, cluster_1, cluster_2)
+            nodes = []
+            for g_name in leng_G:
+                nodes.extend(clusters[g_name])
+            Hs = H.subgraph(nodes)
+            length, _ = nx.single_source_dijkstra(Hs, i[0], i[1], weight='length')
 
-                all_l_c.append(length)
+            all_l_c.append(length)
 
-            result = time.time() - start
-            output['times'].append(result)
-            mis = (np.array(all_l_c).sum() - np.array(all_length).sum()) / np.array(all_length).sum() * 100
-            mis_box_plot = (np.array(all_l_c) - np.array(all_length)) / np.array(all_length) * 100
-            mistakes[round(k, 3)] = mis_box_plot
-            output['error'].append(mis)
+        result = time.time() - start
+        output['time_preprocess_dijkstra_on_centroid_len'].append(result)
 
-        return output, mistakes
+        return output, all_l_c
     
 if __name__ == "__main__":
     # Example usage of the GraphProcessor class

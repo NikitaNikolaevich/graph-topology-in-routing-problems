@@ -7,6 +7,7 @@ import osmnx as ox
 from tqdm import tqdm
 import pandas as pd
 import math
+from typing import Union
 
 class DataGetter:
 
@@ -59,7 +60,20 @@ class DataGetter:
         print(f"Граф с id {id} был сохранён в {file_path}")
 
     @staticmethod
-    def download_graph(id, simplify=True):
+    def _justify_input_id(id):
+        #R -- means relation, which is a polygon of the selected city
+        if isinstance(id,str):
+            if "R" in id:
+                pass
+            else:
+                id = "R" + id
+        else:
+            id = "R" + str(id)
+        return id
+
+    @staticmethod
+    def download_graph(id: Union[int, str], simplify=True, save_on_device=False):
+        id = DataGetter._justify_input_id(id)
         gdf = DataGetter._geocode_to_gdf(id)
         polygon_boundary = DataGetter._get_polygon_boundary(gdf)
         graph = DataGetter._get_graph_from_polygon(polygon_boundary, simplify=simplify)
@@ -70,8 +84,11 @@ class DataGetter:
         directory = "graphs"
         DataGetter._create_directory(directory)
         file_path = os.path.join(directory, f"graph_{id}.graphml")
-        DataGetter._write_graph_to_file(H, file_path)
-        DataGetter._print_save_message(id, file_path)
+
+        if save_on_device:
+            DataGetter._write_graph_to_file(H, file_path)
+            DataGetter._print_save_message(id, file_path)
+
         H.graph['id'] = id
         return H
     
