@@ -6,12 +6,12 @@ The CORP or Clustering Optimiser for Routing problem is a python library for acc
 
 <img src=https://github.com/NikitaNikolaevich/graph-topology-in-routing-problems/blob/main/images/milan.png width="600"/>
 
-# installing
+# Installing
 
 to install via pip without listing on pipy do: 
 ```pip install git+https://github.com/<username>/<repository>.git@main#egg=gsber```
 
 # Quick start
 
-
+First u need for a quick start it to choose graph u need, u can create or download it yourself or use G = DataGetter.download_graph(id="R1430508") function to dounload graf from the Open Street Maps. 
 
