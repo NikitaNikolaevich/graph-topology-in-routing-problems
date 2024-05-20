@@ -20,11 +20,13 @@ First u need for a quick start it to choose graph u need, u can create or downlo
 then all you need is a following code:
 
 
-'''downloading graph
+```
+#downloading graph
 G = DataGetter.download_graph(id="R1430508")
 #preprocessing
 resolutions, ks, v1, e1 = GraphProcessor.search_resolutions(G, k_max=0.6)
 #path finding function
-output, mistakes = GraphRunner.compute_shortest_path_length_centroid(G,resolutions,testing_points,all_length,'length',output )'''
+output, mistakes = GraphRunner.compute_shortest_path_length_centroid(G,resolutions,testing_points,all_length,'length',output )
+```
 
 It is worth noting that this method works for both transport and abstract graphs.
