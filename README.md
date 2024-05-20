@@ -22,7 +22,7 @@ then all you need is a following code:
 
 ```
 #downloading graph
-G = DataGetter.download_graph(id="R1430508")
+G = DataGetter.download_graph(id="R44915")
 
 #preprocessing
 resolutions, ks, v1, e1 = GraphProcessor.search_resolutions(G, k_max=0.6)
