@@ -8,6 +8,8 @@ The CORP\RIDE or Clustering Optimiser for Routing problem is a python library fo
 
 # Installing
 
+(RIDE library) -- Rapid infra-cluster dijkstra enhancer
+
 to install via pip without listing on pipy do: 
 ```pip install git+https://github.com/<username>/<repository>.git@main#egg=gsber```
 

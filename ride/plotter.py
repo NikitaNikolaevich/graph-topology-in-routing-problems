@@ -5,27 +5,27 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import networkx as nx
 
-from gsber.utils import DataGenerator
+from ride.utils import DataGenerator
 
-def create_boxplot(mistakes: pd.DataFrame) -> plt.Axes:
+def create_boxplot(errors: pd.DataFrame) -> plt.Axes:
     """Create a boxplot for the mistakes DataFrame"""
-    ax = mistakes.boxplot(showfliers=False, grid=False)
-    ax.set_xticks(range(1, len(mistakes.columns) + 1))
-    ax.set_xticklabels(mistakes.columns)
+    ax = errors.boxplot(showfliers=False, grid=False)
+    ax.set_xticks(range(1, len(errors.columns) + 1))
+    ax.set_xticklabels(errors.columns)
     return ax
 
-def add_line_plot(ax: plt.Axes, output: pd.DataFrame) -> plt.Axes:
+def _add_line_plot(ax: plt.Axes, times: list) -> plt.Axes:
     """Add a line plot for the output DataFrame to the existing Axes"""
     ax2 = ax.twinx()
-    line, = ax2.plot(range(1, len(output['times']) + 1), output['times'], 'ro-', label='Время работы')
+    line, = ax2.plot(range(1, len(times) + 1), times, 'ro-', label='Время работы')
     return ax2, line
 
-def add_horizontal_line(ax: plt.Axes, expected_error_line_percent: int) -> plt.Axes:
+def _add_horizontal_line(ax: plt.Axes, expected_error_line_percent: int, color:str='g') -> plt.Axes:
     """Add a horizontal line to the Axes at the specified percentage"""
-    line = ax.axhline(y=expected_error_line_percent, color='g', linestyle='--', label='Желаемая ошибка')
+    line = ax.axhline(y=expected_error_line_percent, color=color, linestyle='--', label='Желаемая ошибка')
     return line
 
-def configure_axes(ax1: plt.Axes, ax2: plt.Axes) -> None:
+def _configure_axes(ax1: plt.Axes, ax2: plt.Axes) -> None:
     """Configure the Axes labels, titles, and legends"""
     ax1.set_ylabel('Ошибки, %', color='b')
     ax2.set_ylabel('Время, сек', color='r')
@@ -50,20 +50,23 @@ def save_plot(graph_id: str, save: bool) -> None:
 
 def box_visualisation(
     graph: nx.Graph, 
-    output: pd.DataFrame, 
-    mistakes: pd.DataFrame, 
-    show: bool, 
-    save: bool, 
+    times: list, 
+    dijkstra_time: float,
+    errors: pd.DataFrame, 
+    show: bool = True, 
+    save: bool = False, 
     expected_error_line_percent: int = 10
 ) -> None:
     """Create a boxplot with a line plot and save it to a file if specified"""
     plt.figure(figsize=(16, 9))
-    ax = create_boxplot(mistakes)
-    ax2, line = add_line_plot(ax, output)
-    add_horizontal_line(ax, expected_error_line_percent)
-    configure_axes(ax, ax2)
+    ax = create_boxplot(errors)
+    ax2, line = _add_line_plot(ax, times)
+    _add_horizontal_line(ax, expected_error_line_percent)
+    _add_horizontal_line(ax2, dijkstra_time, color='r')
+
+    _configure_axes(ax, ax2)
     if save:
-        save_plot(graph.graph['id'], save)
+        save_plot(graph.graph['id'])
     if show:
         plt.show()
 
@@ -77,6 +80,7 @@ def add_louven_line(H, x_values, y_values) -> plt.Axes:
     plt.xlabel('k, отношение кластеров к узлам графа')
     plt.ylabel('Эволюция асимптотического времени')
     plt.title('Асимптотическое время работы')
+    # plt.legend(['Расчетное время на всём графе', 'расчетное время на центроидах по формуле'])
 
     line = plt.axhline(y=louven_value, color='g', linestyle='--', label='Алгоритм Лувена')
     return line
@@ -107,7 +111,7 @@ def visualisation(
         y_values.append(y)
 
     # ax = create_plot(x_values, y_values)
-    line = add_louven_line(graph, x_values, y_values)
+    _ = add_louven_line(graph, x_values, y_values)
 
     if save:
         file_path = os.path.join("data", "img", f"асимптота_{graph.graph['id']}.png")
