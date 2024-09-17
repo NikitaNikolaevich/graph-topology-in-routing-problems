@@ -8,20 +8,47 @@ import networkx as nx
 from ride.utils import DataGenerator
 
 def create_boxplot(errors: pd.DataFrame) -> plt.Axes:
-    """Create a boxplot for the mistakes DataFrame"""
+    """
+    Создаёт boxplot для DataFrame, содержащего ошибки.
+
+    Параметры:
+        errors (pd.DataFrame): DataFrame с ошибками.
+    Возвращает:
+        Ось (plt.Axes) с построенным графиком boxplot.
+    """
+    
     ax = errors.boxplot(showfliers=False, grid=False)
     ax.set_xticks(range(1, len(errors.columns) + 1))
     ax.set_xticklabels(errors.columns)
     return ax
 
 def _add_line_plot(ax: plt.Axes, times: list) -> plt.Axes:
-    """Add a line plot for the output DataFrame to the existing Axes"""
+    """
+    Добавляет график линий, представляющий время выполнения алгоритма, к уже существующему boxplot.
+    
+    Параметры:
+        ax (plt.Axes): Ось с boxplot.
+        times (list): Список значений времени для каждой итерации.
+    Возвращает:
+        Новая ось с линией времени.
+    """
+
     ax2 = ax.twinx()
     line, = ax2.plot(range(1, len(times) + 1), times, 'ro-', label='Время работы')
     return ax2, line
 
 def _add_horizontal_line(ax: plt.Axes, expected_error_line_percent: int, color:str='g') -> plt.Axes:
-    """Add a horizontal line to the Axes at the specified percentage"""
+    """
+    Добавляет горизонтальную линию на график для отображения желаемого уровня ошибки.
+    
+    Параметры:
+        ax (plt.Axes): Ось для добавления линии.
+        expected_error_line_percent (int): Значение процента ошибки, на котором будет построена линия.
+        color (str): Цвет линии (по умолчанию зелёный).
+    Возвращает:
+        Горизонтальная линия на графике.
+    """
+
     line = ax.axhline(y=expected_error_line_percent, color=color, linestyle='--', label='Желаемая ошибка')
     return line
 

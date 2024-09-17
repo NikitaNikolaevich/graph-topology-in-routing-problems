@@ -9,7 +9,17 @@ from ride.utils import DataGenerator
 
 class GraphProcessor:
     def create_G_centroid(H: nx.Graph) -> Tuple[nx.Graph, Dict[int, List[int]]]:
-        """Create a graph with centroids of clusters"""
+        """
+        Создает граф, состоящий из центроидов кластеров, и возвращает этот граф вместе с кластерами.
+
+        Параметры:
+            H (nx.Graph): Входной граф.
+
+        Возвращает:
+            G (nx.Graph): Граф с центроидами кластеров.
+            clusters (Dict[int, List[int]]): Словарь кластеров, где ключ — номер кластера, значение — список узлов.
+        """
+
         clusters = GraphProcessor._get_clusters(H)
         cluster_transitions = GraphProcessor._get_cluster_transitions(clusters, H)
         centroids = GraphProcessor._get_centroids(clusters, H)
@@ -17,13 +27,35 @@ class GraphProcessor:
         return G, clusters
 
     def louvain_clusters(H: nx.Graph, seed: int = 0, weight: str = 'length', resolution: float = 1) -> Tuple[nx.Graph, Dict[int, List[int]]]:
-        """Apply Louvain clustering algorithm to the graph"""
+        """
+        Применяет алгоритм кластеризации Лувена к графу.
+
+        Параметры:
+            H (nx.Graph): Входной граф.
+            seed (int): Сид для генерации случайных чисел (по умолчанию 0).
+            weight (str): Взвешивание рёбер (по умолчанию 'length').
+            resolution (float): Параметр разрешения (по умолчанию 1).
+
+        Возвращает:
+            Н (nx.Graph): Граф с добавленными кластерами
+            communities (Dict[int, List[int]]): словарь кластеров.
+        """
+
         communities = nx.community.louvain_communities(H, seed=seed, weight=weight, resolution=resolution)
         GraphProcessor._add_clusters_to_nodes(H, communities)
         return H, communities
 
     def create_points_for_test(H: nx.Graph, min_distance: int = 10) -> pd.DataFrame:
-        """Create points for test"""
+        """
+        Генерирует точки для тестирования на основе кластеров и расстояний между ними.
+
+        Параметры:
+            H (nx.Graph): Входной граф.
+            min_distance (int): Минимальное расстояние между точками (по умолчанию 10).
+        Возвращает:
+            res (pd.DataFrame): Точки для тестирования.
+        """
+
         H, _ = GraphProcessor.louvain_clusters(H, resolution=1, weight='length')
         G_centroid, clusters = GraphProcessor.create_G_centroid(H)
         random.seed(1)
@@ -31,7 +63,17 @@ class GraphProcessor:
         return res
 
     def search_resolutions(H: nx.Graph, resolution: float = 0.001, weight: str = 'length', k_max: float = 0.7) -> Tuple[List[float], List[float], List[int], List[int]]:
-        """Search resolutions for Louvain algorithm"""
+        """
+        Поиск разрешений для алгоритма Лувена, при которых достигается требуемое отношение числа кластеров к числу узлов.
+
+        Параметры:
+            H (nx.Graph): Входной граф.
+            resolution (float): Стартовое разрешение для алгоритма Лувена (по умолчанию 0.001).
+            weight (str): Взвешивание рёбер (по умолчанию 'length').
+            k_max (float): Максимальное значение отношения числа кластеров к числу узлов (по умолчанию 0.7).
+        Возвращает:
+            resolutions (Tuple[List[float], List[float], List[int], List[int]]): Списки разрешений, отношения кластеров к узлам, количество узлов и рёбер.
+"""
         resolutions = []
         k = 0
         ks = []
@@ -57,7 +99,14 @@ class GraphProcessor:
         return resolutions, ks, v1, e1
 
     def _get_clusters(H: nx.Graph) -> Dict[int, List[int]]:
-        """Get clusters from the graph"""
+        """
+        Извлекает кластеры из графа.
+
+        Параметры:
+            H (nx.Graph): Входной граф.
+        Возвращает:
+            Словарь кластеров.
+        """
         clusters = {}
         for node, data in H.nodes(data=True):
             cluster = data['cluster']
@@ -67,7 +116,15 @@ class GraphProcessor:
         return clusters
 
     def _get_cluster_transitions(clusters: Dict[int, List[int]], H: nx.Graph) -> Dict[int, List[int]]:
-        """Get cluster transitions from the graph"""
+        """
+        Возвращает список соседних кластеров для каждого кластера.
+
+        Параметры:
+            clusters (Dict[int, List[int]]): Кластеры графа.
+            H (nx.Graph): Входной граф.
+        Возвращает:
+            Словарь с переходами между кластерами.
+        """
         cluster_transitions = {}
         for cluster, nodes in clusters.items():
             neighboring_clusters = set()
@@ -80,7 +137,15 @@ class GraphProcessor:
         return cluster_transitions
 
     def _get_centroids(clusters: Dict[int, List[int]], H: nx.Graph) -> Dict[int, int]:
-        """Get centroids from the graph"""
+        """
+        Определяет центроиды кластеров.
+
+        Параметры:
+            clusters (Dict[int, List[int]]): Кластеры графа.
+            H (nx.Graph): Входной граф.
+        Возвращает:
+            Словарь центроидов кластеров.
+        """
         centroids = {}
         for i in range(len(clusters)):
             nodes_ = [node for node, data in H.nodes(data=True) if data.get('cluster') == i]
@@ -91,7 +156,16 @@ class GraphProcessor:
         return centroids
     
     def _create_graph_from_dict(H, cluster_transitions: Dict[int, List[int]], centroids: Dict[int, int]) -> nx.Graph:
-        """Create a graph from a dictionary"""
+        """
+        Создаёт новый граф на основе центроидов и переходов между кластерами.
+
+        Параметры:
+            H (nx.Graph): Входной граф.
+            cluster_transitions (Dict[int, List[int]]): Словарь переходов между кластерами.
+            centroids (Dict[int, int]): Словарь центроидов кластеров.
+        Возвращает:
+            Граф на основе центроидов.
+        """
         G = nx.Graph()
         for node, neighbors in cluster_transitions.items():
             for neighbor in neighbors:
@@ -102,7 +176,13 @@ class GraphProcessor:
         return G
 
     def _add_clusters_to_nodes(H: nx.Graph, communities: Dict[int, List[int]]) -> None:
-        """Add clusters to nodes in the graph"""
+        """
+        Добавляет информацию о кластерах узлам графа.
+
+        Параметры:
+            H (nx.Graph): Входной граф.
+            communities (Dict[int, List[int]]): Кластеры графа.
+        """
         for i, ids in enumerate(communities):
             for j in ids:
                 H.nodes[j]['cluster'] = i
