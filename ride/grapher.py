@@ -290,7 +290,6 @@ class GraphRunner:
 
         v1 = []
         e1  =[]
-        print('\nТестирование на центроидах:')
         H, communities = GraphProcessor.louvain_clusters(H, resolution=resolution, weight=weight)
         k = len(communities)/len(H.nodes)
         output['ks'].append(round(k, 3))
