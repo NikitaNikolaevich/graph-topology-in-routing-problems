@@ -1,7 +1,5 @@
 import pickle
-
 import networkx as nx
-
 from file_name_generator import generate_new_name
 
 
