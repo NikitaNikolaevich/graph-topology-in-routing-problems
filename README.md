@@ -39,8 +39,8 @@ It is worth noting that this method works for both transport and abstract graphs
 
 Graphs of the relationship between acceleration, achieved by the Hierarchical Pathfinding Algorithm compared to the classical Dijkstra algorithm.
 
-<img src=https://github.com/NikitaNikolaevich/graph-topology-in-routing-problems/blob/main/images/Prague.png width="600"/>
+<img src=./images/Prague.png width="600"/>
 
-The relationship between the maximum of acceleration $γ_max$ and the number of vertices $N_0$ in the graph.
+The relationship between the maximum of acceleration $γ_{max}$ and the number of vertices $N_0$ in the graph.
 
-<img src=https://github.com/NikitaNikolaevich/graph-topology-in-routing-problems/blob/main/images/max acceleration.png width="600"/>
+<img src=./images/max_acceleration.png width="600"/>
