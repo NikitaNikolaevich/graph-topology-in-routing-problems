@@ -19,20 +19,6 @@ First u need for a quick start it to choose graph u need, u can create or downlo
 
 <img src=https://github.com/NikitaNikolaevich/graph-topology-in-routing-problems/blob/main/images/osm.png width="600"/>
 
-then all you need is a following code:
-
-
-```
-#downloading graph
-G = DataGetter.download_graph(id="R44915")
-
-#preprocessing
-resolutions, ks, v1, e1 = GraphProcessor.search_resolutions(G, k_max=0.6)
-
-#path finding function
-output, mistakes = GraphRunner.compute_shortest_path_length_centroid(G,resolutions,testing_points,all_length,'length',output )
-```
-
 It is worth noting that this method works for both transport and abstract graphs.
 
 # Results
