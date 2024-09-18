@@ -2,18 +2,12 @@ import numpy as np
 from matplotlib import pyplot as plt
 from scipy.optimize import curve_fit
 
-def myround(x, base=10):
-    return base * round(x / base)
-
-# Общая функция для расчета теоретического ускорения
-def theoretical_acceleration(x, N):
-    k = x * (1 + np.log(x) / np.log(N)) + 46 / (N ** 0.72 * x ** 0.5) * (0.28 - np.log(x) / np.log(N) / 2)
-    return 1 / k
-
-# Функция для оптимизации ускорения
-def optimized_acceleration(x, a, N):
-    k = x * (1 + np.log(x) / np.log(N)) + a / x ** 0.5
-    return 1 / k
+from formulas import (
+    optimal_a_star,
+    myround,
+    theoretical_acceleration,
+    optimized_acceleration,
+    )
 
 # Функция для форматирования подписей
 def format_labels(points_results, alpha_threshold=None):
@@ -87,7 +81,7 @@ def plot_city_results(res, N, max_alpha=0.5, alpha_threshold=0.5):
     speed_up = np.array([p.speed_up[0] for p in res.points_results])
 
     # Теоретическое значение alpha*
-    a0 = 8.09 * N ** -0.48 * (1 - 19.4 / (4.8 * np.log(N) + 8.8))
+    a0 = optimal_a_star(N)
     
     # Построение графика ускорения
     plot_acceleration(axs[0], alpha, speed_up, N, a0, theoretical_acceleration, max_alpha)
