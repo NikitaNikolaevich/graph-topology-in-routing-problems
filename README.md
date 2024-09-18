@@ -2,7 +2,7 @@
 
 # CORP (Clustering Optimiser for Routing problem)  or RIDE (Rapid infra-cluster dijkstra enhancer) library
 
-The CORP\RIDE or Clustering Optimiser for Routing problem is a python library for accelerating Deikstra task on any graphs with hierarchical method involving solving a problem on simpler graphs with further combining solutions into a common one. More information about method ine can find soon in corresponding _article_.
+The CORP\RIDE or Clustering Optimiser for Routing problem is a python library for accelerating Deikstra task on any graphs with hierarchical method involving solving a problem on simpler graphs with further combining solutions into a common one. The method is based on the division of the graph into clusters. By using this division, you can eliminate many sub optimal route constructions and achieve multiple-time acceleration without significant loss of accuracy. More information about method ine can find soon in corresponding _article_.
 
 <img src=https://github.com/NikitaNikolaevich/graph-topology-in-routing-problems/blob/main/images/milan.png width="600"/>
 
@@ -34,3 +34,13 @@ output, mistakes = GraphRunner.compute_shortest_path_length_centroid(G,resolutio
 ```
 
 It is worth noting that this method works for both transport and abstract graphs.
+
+# Results
+
+Graphs of the relationship between acceleration, achieved by the Hierarchical Pathfinding Algorithm compared to the classical Dijkstra algorithm.
+
+<img src=https://github.com/NikitaNikolaevich/graph-topology-in-routing-problems/blob/main/images/Prague.png width="600"/>
+
+The relationship between the maximum of acceleration $γ_max$ and the number of vertices $N_0$ in the graph.
+
+<img src=https://github.com/NikitaNikolaevich/graph-topology-in-routing-problems/blob/main/images/max acceleration.png width="600"/>
