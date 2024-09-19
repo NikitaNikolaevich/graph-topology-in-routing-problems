@@ -1,10 +1,13 @@
+<!--
 <img src=https://github.com/NikitaNikolaevich/graph-topology-in-routing-problems/blob/main/images/speed.png/>
+-->
 
 # CORP (Clustering Optimiser for Routing problem)  or RIDE (Rapid infra-cluster dijkstra enhancer) library
 
 The CORP\RIDE or Clustering Optimiser for Routing problem is a python library for accelerating Deikstra task on any graphs with hierarchical method involving solving a problem on simpler graphs with further combining solutions into a common one. The method is based on the division of the graph into clusters. By using this division, you can eliminate many sub optimal route constructions and achieve multiple-time acceleration without significant loss of accuracy. More information about method ine can find soon in corresponding _article_.
-
+<!-- 
 <img src=https://github.com/NikitaNikolaevich/graph-topology-in-routing-problems/blob/main/images/milan.png width="600"/>
+-->
 
 # Installing
 
