@@ -18,7 +18,11 @@ to install via pip without listing on pipy do:
 
 # Quick start
 
-First u need for a quick start it to choose graph u need, u can create or download it yourself or use G = DataGetter.download_graph(id="R44915") function to download graph from the Open Street Maps. Search for the object and then copy id for the DataGetter.download_graph like following picture shows:
+First, you need to choose a graph for a quick start. You can create or download one yourself, or use the `G = DataGetter.download_graph(id="R44915")` function to download a graph from Open Street Maps. Search for the object and then copy the ID, as shown in the following picture.
+
+```py
+test
+```
 
 <img src=https://github.com/NikitaNikolaevich/graph-topology-in-routing-problems/blob/main/images/osm.png width="600"/>
 

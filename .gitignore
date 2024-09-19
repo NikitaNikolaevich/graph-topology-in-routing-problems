@@ -159,8 +159,8 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-data/img/
 /data/csv_1
 /data/graphs_1
 /data/img_1
 /examples/cache
+/.vscode

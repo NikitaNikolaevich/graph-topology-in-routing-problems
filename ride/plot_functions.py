@@ -1,12 +1,10 @@
 import numpy as np
 from matplotlib import pyplot as plt
-from scipy.optimize import curve_fit
 
 from ride.formulas import (
     optimal_a_star,
     myround,
     theoretical_acceleration,
-    optimized_acceleration,
     )
 
 # Функция для форматирования подписей

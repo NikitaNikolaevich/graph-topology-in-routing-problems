@@ -10,7 +10,7 @@ from tqdm import tqdm, trange
 from ride import graph_generator
 from ride import pfa
 from ride.common import GraphLayer, CentroidResult, CityResult
-from ride.graph_generator import generate_layer, get_node_for_initial_graph_v2
+from ride.graph_generator import generate_layer, get_node_for_initial_graph
 from ride.pfa import find_path
 
 
@@ -71,7 +71,7 @@ def get_usual_result(g: nx.Graph, points: list[tuple[int, int]], alg='dijkstra')
 
 
 def get_points(graph: nx.Graph, N: int) -> list[tuple[int, int]]:
-    return [get_node_for_initial_graph_v2(graph) for _ in range(N)]
+    return [get_node_for_initial_graph(graph) for _ in range(N)]
 
 
 def generate_result(
@@ -124,7 +124,7 @@ def test_graph(graph: nx.Graph,
         resolutions += [i for i in range(1000, 5000, 200)]
     if points is None:
         N: int = 1000
-        points = [get_node_for_initial_graph_v2(graph) for _ in range(N)]
+        points = [get_node_for_initial_graph(graph) for _ in range(N)]
     else:
         N = len(points)
 
@@ -222,7 +222,7 @@ def test_graph_swapp(graph: nx.Graph, name: str, city_id: str, p: float, points:
         resolutions += [i for i in range(1000, 5000, 200)]
     if points is None:
         N: int = 1000
-        points = [get_node_for_initial_graph_v2(graph) for _ in trange(N, desc='generate points')]
+        points = [get_node_for_initial_graph(graph) for _ in trange(N, desc='generate points')]
     else:
         N = len(points)
 
