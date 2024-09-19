@@ -4,8 +4,8 @@ import networkx as nx
 import numpy as np
 from tqdm import tqdm
 
-from common import GraphLayer
-from graph_generator import extract_cluster_list_subgraph
+from ride.common import GraphLayer
+from ride.graph_generator import extract_cluster_list_subgraph
 
 
 def find_path(

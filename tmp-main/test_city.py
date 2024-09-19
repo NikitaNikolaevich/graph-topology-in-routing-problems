@@ -11,12 +11,12 @@ import pandas as pd
 from scipy.spatial import KDTree as kd
 from tqdm import trange, tqdm
 # import matplotlib.pyplot as plt
-import city_tests
-import graph_generator
+from tests import city_tests
+from ride import graph_generator
 
 import osmnx as ox
 
-from common import GraphLayer
+from ride.common import GraphLayer
 
 
 def get_graph(city_id: str = 'R2555133') -> nx.Graph:

@@ -6,8 +6,8 @@ import numpy as np
 import pandas
 from tqdm import tqdm
 import osmnx as ox
-import city_tests
-import graph_generator
+from tests import city_tests
+from ride import graph_generator
 
 
 def get_usual_result(g: nx.Graph, points: list[tuple[int, int]]):

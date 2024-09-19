@@ -9,8 +9,8 @@ import numpy as np
 from scipy.spatial import KDTree as kd
 from tqdm import trange, tqdm
 
-import city_tests
-import graph_generator
+from tests import city_tests
+from ride import graph_generator
 
 import osmnx as ox
 

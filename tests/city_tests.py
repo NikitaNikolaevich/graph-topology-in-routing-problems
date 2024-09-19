@@ -7,11 +7,11 @@ import networkx as nx
 import numpy as np
 from tqdm import tqdm, trange
 
-import graph_generator
-import pfa
-from common import GraphLayer, CentroidResult, CityResult
-from graph_generator import generate_layer, get_node_for_initial_graph_v2
-from pfa import find_path
+from ride import graph_generator
+from ride import pfa
+from ride.common import GraphLayer, CentroidResult, CityResult
+from ride.graph_generator import generate_layer, get_node_for_initial_graph_v2
+from ride.pfa import find_path
 
 
 def test_path(
@@ -178,18 +178,6 @@ def test_graph(graph: nx.Graph, name: str, city_id: str, points: list[tuple[int,
         if logs:
             tqdm.write(text)
         result.points_results.append(generate_result(usual_results, tmp, r, layer))
-
-    # plt.figure(figsize=(16, 9))
-    # plt.scatter(alpha,s1, alpha=0.5, label='s1')
-    # plt.scatter(alpha, s2, alpha=0.5, label='s2')
-    # plt.scatter(alpha, s3, alpha=0.5, label='s3')
-    #
-    # # plt.loglog(df['density'], df['fit'], '--', color='red', label=fr'Fit: {A} $\times \text{{density}}^{{-1/3}}$')
-    # plt.xlabel('alpha')
-    # plt.ylabel('time')
-    # plt.title('Scatter plot with Fit')
-    # plt.legend()
-    # plt.show()
 
     result.save()
     if logs:

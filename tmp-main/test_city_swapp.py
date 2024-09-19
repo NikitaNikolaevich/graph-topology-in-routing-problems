@@ -9,8 +9,8 @@ import numpy as np
 from scipy.spatial import KDTree as kd
 from tqdm import trange, tqdm
 
-import city_tests
-import graph_generator
+from tests import city_tests
+from ride import graph_generator
 
 import osmnx as ox
 
@@ -41,7 +41,7 @@ def calculate(data):
     for name, id in cities:
         G = get_graph(id)
         print(len(G.nodes))
-        return
+        return 0
         ss = [0.1, 1, 5, 10, 50, 100]
         swaps = []
 

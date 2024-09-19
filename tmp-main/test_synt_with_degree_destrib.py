@@ -10,8 +10,8 @@ import numpy as np
 from scipy.spatial import KDTree as kd
 from tqdm import tqdm, trange
 
-import city_tests
-import graph_generator
+from tests import city_tests
+from ride import graph_generator
 from tqdm.contrib.concurrent import process_map
 
 

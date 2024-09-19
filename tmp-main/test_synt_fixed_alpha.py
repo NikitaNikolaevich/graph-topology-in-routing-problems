@@ -9,8 +9,8 @@ import networkx as nx
 import numpy as np
 from scipy.spatial import KDTree as kd
 
-import city_tests
-import graph_generator
+from tests import city_tests
+from ride import graph_generator
 
 
 def get_rand_graph(N, p):
