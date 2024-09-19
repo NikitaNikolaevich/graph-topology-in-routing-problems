@@ -2,7 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from scipy.optimize import curve_fit
 
-from formulas import (
+from ride.formulas import (
     optimal_a_star,
     myround,
     theoretical_acceleration,
@@ -17,7 +17,7 @@ def format_labels(points_results, alpha_threshold=None):
         return ['{:.2f}'.format(myround(p.alpha * 1000) / 1000) for p in points_results]
 
 # Функция для отрисовки графика ускорения
-def plot_acceleration(ax, alpha, speed_up, N, a0, func, max_alpha):
+def plot_acceleration(ax, alpha, speed_up, N, a0, func, max_alpha=1):
     alpha1 = np.linspace(1 / N, max_alpha, 1000)
     ax.plot(alpha1, func(alpha1, N), '--', label='Theoretical acceleration', markersize=30, linewidth=8)
     idx = np.argwhere(alpha <= max_alpha)
@@ -94,3 +94,15 @@ def plot_city_results(res, N, max_alpha=0.5, alpha_threshold=0.5):
 
     fig.suptitle(fr'$N_0$={N}')
     plt.show()
+
+def plot_theoretical_acceleration(N, figsize=(16, 9)):
+    alphas = [alpha for alpha in np.arange(0.001, 1, 0.001)]  # Используем np.arange вместо range
+    fig, ax = plt.subplots(figsize=figsize)  # Используем plt.subplots вместо plt.figure
+    acceleration = [theoretical_acceleration(alpha, N) for alpha in alphas]
+    a0 = optimal_a_star(N)
+    ax.plot(alphas, acceleration, '--')  # Добавляем график
+    ax.axvline(x=a0, ymin=0, c='r', linestyle=':', label=r'$\alpha^*$', linewidth=6)
+    ax.set_xlabel('Alpha')  # Добавляем метку для оси x
+    ax.set_ylabel('Acceleration')  # Добавляем метку для оси y
+    ax.set_title('Theoretical Acceleration for Alpha')  # Добавляем заголовок
+    plt.show()  # Показываем график

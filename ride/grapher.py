@@ -62,7 +62,7 @@ class GraphProcessor:
         res = DataGenerator.sample_nodes_for_experiment(G_centroid, clusters, min_distance)
         return res
 
-    def search_resolutions(H: nx.Graph, resolution: float = 0.001, weight: str = 'length', k_max: float = 0.7) -> Tuple[List[float], List[float], List[int], List[int]]:
+    def search_resolutions(H: nx.Graph, resolution: float = 0.001, weight: str = 'length', alpha_max: float = 0.7) -> Tuple[List[float], List[float], List[int], List[int]]:
         """
         Поиск разрешений для алгоритма Лувена, при которых достигается требуемое отношение числа кластеров к числу узлов.
 
@@ -75,28 +75,28 @@ class GraphProcessor:
             resolutions (Tuple[List[float], List[float], List[int], List[int]]): Списки разрешений, отношения кластеров к узлам, количество узлов и рёбер.
 """
         resolutions = []
-        k = 0
-        ks = []
-        v1 = []
-        e1 = []
+        alpha = 0
+        alphas = []
+        nodes_subgraph = []
+        edges_subgraph = []
 
-        while k < k_max:
+        while alpha < alpha_max:
             H, communities = GraphProcessor.louvain_clusters(H, resolution=resolution, weight=weight)
-            k = len(communities)/len(H.nodes)
-            if k < 0.008:
+            alpha = len(communities)/len(H.nodes)
+            if alpha < 0.008:
                 resolution *= 3
                 continue
             else:
                 G_centroid, _ = GraphProcessor.create_G_centroid(H)
                 if len(G_centroid.nodes()) > 0 and len(G_centroid.edges()) > 0:
-                    v1.append(len(G_centroid.nodes()))
-                    e1.append(len(G_centroid.edges()))
+                    nodes_subgraph.append(len(G_centroid.nodes()))
+                    edges_subgraph.append(len(G_centroid.edges()))
                     resolutions.append(resolution)
-                    ks.append(k)
+                    alphas.append(alpha)
                     resolution *= 3
                     resolution = round(resolution,3)
 
-        return resolutions, ks, v1, e1
+        return resolutions, alphas, nodes_subgraph, edges_subgraph
 
     def _get_clusters(H: nx.Graph) -> Dict[int, List[int]]:
         """
@@ -257,7 +257,6 @@ class GraphRunner:
 
         start = time.time()
         all_length = []
-        print('\nТестирование на начальном графе:')
         for i in part:
             length, path1 = nx.single_source_dijkstra(H, i[0], i[1], weight=weight)
             all_length.append(length)
@@ -266,10 +265,11 @@ class GraphRunner:
 
         return time_calc, all_length
     
-    def calculate_error(all_length, all_l_c):
-        errors = (np.array(all_l_c).sum() - np.array(all_length).sum()) / np.array(all_length).sum() * 100
-        errors_for_box_plot = (np.array(all_l_c) - np.array(all_length)) / np.array(all_length) * 100
-
+    def calculate_error(all_length, all_length_centroids):
+        # errors = (np.array(all_length_centroids).sum() - np.array(all_length).sum()) / np.array(all_length).sum() * 100
+        # errors_for_box_plot = (np.array(all_length_centroids) - np.array(all_length)) / np.array(all_length) * 100
+        errors = (np.array(all_length_centroids).sum() * 100 / np.array(all_length).sum()) - 100
+        errors_for_box_plot = (np.array(all_length_centroids) * 100 / np.array(all_length)) - 100
         return {"total_errors": errors, "all_errors": errors_for_box_plot}
         
 

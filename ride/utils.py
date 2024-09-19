@@ -28,12 +28,15 @@ class DataGetter:
 
     @staticmethod
     def _create_graph(graph):
+        # G = nx.MultiDiGraph(graph)
         G = nx.Graph(graph)
         return G
 
     @staticmethod
-    def _create_empty_graph():
+    def _create_empty_graph(id):
+        # H = nx.MultiDiGraph()
         H = nx.Graph()
+        H.graph['id'] = id
         return H
 
     @staticmethod
@@ -42,9 +45,9 @@ class DataGetter:
             H.add_node(u, x=d['x'], y=d['y'])
 
     @staticmethod
-    def _add_edges_to_graph(G, H):
+    def _add_edges_to_graph(G, H, weight='length'):
         for u, v, d in G.edges(data=True):
-            H.add_edge(u, v, length=d['length'])
+            H.add_edge(u, v, length=d[weight])
 
     @staticmethod
     def _create_directory(directory):
@@ -78,7 +81,7 @@ class DataGetter:
         polygon_boundary = DataGetter._get_polygon_boundary(gdf)
         graph = DataGetter._get_graph_from_polygon(polygon_boundary, simplify=simplify)
         G = DataGetter._create_graph(graph)
-        H = DataGetter._create_empty_graph()
+        H = DataGetter._create_empty_graph(id)
         DataGetter._add_nodes_to_graph(G, H)
         DataGetter._add_edges_to_graph(G, H)
         directory = "graphs"
@@ -89,9 +92,19 @@ class DataGetter:
             DataGetter._write_graph_to_file(H, file_path)
             DataGetter._print_save_message(id, file_path)
 
-        H.graph['id'] = id
         return H
     
+    @staticmethod
+    def load_graph(path):
+        if path.endswith('.graphml'):
+            G = nx.read_graphml(path)
+            H = DataGetter._create_empty_graph(id)
+            DataGetter._add_nodes_to_graph(G, H)
+            DataGetter._add_edges_to_graph(G, H)
+            return H
+        else:
+            raise ValueError("Invalid file type. Please provide a .graphml file.")
+        
 class DataGenerator:
 
     @staticmethod

@@ -27,6 +27,8 @@ Graphs of the relationship between acceleration, achieved by the Hierarchical Pa
 
 <img src=./images/Prague.png width="600"/>
 
+<!-- 
 The relationship between the maximum of acceleration $γ_{max}$ and the number of vertices $N_0$ in the graph.
 
-<img src=./images/max_acceleration.png width="600"/>
+<img src=./images/max_acceleration.png width="600"/> 
+-->

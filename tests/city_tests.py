@@ -99,12 +99,22 @@ def generate_result(
     return result
 
 
-def test_graph(graph: nx.Graph, name: str, city_id: str, points: list[tuple[int, int]] = None,
-               resolutions: list[float] = None, pos=2, logs=True, alg='dijkstra') -> CityResult:
-    max_alpha = 1 if resolutions is None else max(resolutions)
+def test_graph(graph: nx.Graph,
+               name: str,
+               city_id: str,
+               points: list[tuple[int, int]] = None,
+               resolutions: list[float] = None,
+               alpha_range: tuple[float, float] = (0.1, 0.2),
+               pos=2,
+               logs=True,
+               alg='dijkstra',
+               save=False) -> CityResult:
+    max_alpha = alpha_range[1]
     delta = max_alpha / 40
     if resolutions is None:
         resolutions = []
+        resolutions += [i / 1000 for i in range(1, 10, 1)]
+        resolutions += [i / 100 for i in range(1, 10, 1)]
         resolutions += [i / 10 for i in range(1, 10, 1)]
         resolutions += [i for i in range(1, 10, 1)]
         resolutions += [i for i in range(10, 50, 2)]
@@ -114,7 +124,7 @@ def test_graph(graph: nx.Graph, name: str, city_id: str, points: list[tuple[int,
         resolutions += [i for i in range(1000, 5000, 200)]
     if points is None:
         N: int = 1000
-        points = [get_node_for_initial_graph_v2(graph) for _ in trange(N, desc='generate points')]
+        points = [get_node_for_initial_graph_v2(graph) for _ in range(N)]
     else:
         N = len(points)
 
@@ -136,10 +146,11 @@ def test_graph(graph: nx.Graph, name: str, city_id: str, points: list[tuple[int,
     for r in resolutions:
         start = time.time()
         community = graph_generator.resolve_communities(graph, r)
-        # print(len(community) / len(graph.nodes))
         if len(community) < 5:
             continue
         a = len(community) / len(graph.nodes)
+        if a < alpha_range[0]:
+            continue
         has = False
         for curr in alphas:
             if abs(curr - a) < delta:
@@ -147,7 +158,7 @@ def test_graph(graph: nx.Graph, name: str, city_id: str, points: list[tuple[int,
                 break
         if has or a > max_alpha:
             if logs:
-                tqdm.write(f'alpha: {a} -- skip')
+                tqdm.write(f'alpha: {a:.6} -- skip')
             if a == 1 and 1 in alphas or a > max_alpha:
                 break
             else:
@@ -173,13 +184,15 @@ def test_graph(graph: nx.Graph, name: str, city_id: str, points: list[tuple[int,
                     build_additional:       {:.3f}
                     build_centroid_graph:   {:.3f}
                 pfa time:       {:.3f}
+                resolution:      {}
             """.format(name, a, total, total - tmp[0], build_communities, build_additional, build_centroid_graph,
-                       tmp[0])
+                       tmp[0], r)
         if logs:
             tqdm.write(text)
         result.points_results.append(generate_result(usual_results, tmp, r, layer))
 
-    result.save()
+    if save:
+        result.save()
     if logs:
         s = [p.speed_up[0] for p in result.points_results]
         indx = np.argmax(s)
