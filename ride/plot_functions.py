@@ -9,6 +9,21 @@ from ride.formulas import (
 
 # Функция для форматирования подписей
 def format_labels(points_results, alpha_threshold=None):
+    """
+    Format the alpha values of a list of points results as labels.
+
+    Parameters
+    ----------
+    points_results : list
+        A list of points results, where each point result has an `alpha` attribute.
+    alpha_threshold : float, optional
+        An optional threshold for filtering the points results by alpha value (default is None).
+
+    Returns
+    -------
+    list[str]
+        A list of formatted alpha values as strings, rounded to two decimal places.
+    """
     if alpha_threshold:
         return ['{:.2f}'.format(myround(p.alpha * 1000) / 1000) for p in points_results if p.alpha <= alpha_threshold]
     else:
@@ -16,6 +31,30 @@ def format_labels(points_results, alpha_threshold=None):
 
 # Функция для отрисовки графика ускорения
 def plot_acceleration(ax, alpha, speed_up, N, a0, func, max_alpha=1):
+    """
+    Plot the acceleration curve for a given set of alpha values and a theoretical function.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        The matplotlib axes to plot on.
+    alpha : numpy.ndarray
+        The alpha values to plot.
+    speed_up : numpy.ndarray
+        The corresponding speed-up values to plot.
+    N : int
+        The number of nodes.
+    a0 : float
+        The optimal alpha value.
+    func : callable
+        The theoretical function to plot.
+    max_alpha : float, optional
+        The maximum alpha value to plot (default is 1).
+
+    Returns
+    -------
+    None
+    """
     alpha1 = np.linspace(1 / N, max_alpha, 1000)
     ax.plot(alpha1, func(alpha1, N), '--', label='Theoretical acceleration', markersize=30, linewidth=8)
     idx = np.argwhere(alpha <= max_alpha)
@@ -27,6 +66,22 @@ def plot_acceleration(ax, alpha, speed_up, N, a0, func, max_alpha=1):
 
 # Функция для отрисовки боксплота ошибок
 def plot_boxplot(ax, points_results, labels):
+    """
+    Plot a boxplot of errors for a list of points results.
+
+    Parameters
+    ----------
+    ax : matplotlib Axes
+        The axes to plot on.
+    points_results : list
+        A list of points results, where each point result has an `errors` attribute.
+    labels : list
+        A list of labels for the x-axis.
+
+    Returns
+    -------
+    None
+    """
     boxprops = {"color": "black", "linewidth": 3, "facecolor": "#35478C"}
     medianprops = {"color": "r", "linewidth": 4}
     whiskerprops = {"color": "black", "linewidth": 3}
@@ -40,18 +95,95 @@ def plot_boxplot(ax, points_results, labels):
     ax.set_ylabel('error, %')
 
 def theoretical_max_acceleration_nodes(nodes):
+    """
+    Calculate the theoretical maximum acceleration for a given number of nodes.
+
+    Parameters
+    ----------
+    nodes : int
+        The number of nodes.
+
+    Returns
+    -------
+    float
+        The theoretical maximum acceleration.
+    """
     return 1 / 13 * nodes ** 0.48
 
 def theoretical_max_acceleration_density(density):
+    """
+    Calculate the theoretical maximum acceleration for a given density.
+
+    Parameters
+    ----------
+    density : float
+        The density.
+
+    Returns
+    -------
+    float
+        The theoretical maximum acceleration.
+    """
     return 1 / 13 * (2.8 / density) ** 0.48
 
 def theoretical_alpha_star_nodes(nodes):
+    """
+    Calculate the theoretical alpha star value for a given number of nodes.
+
+    Parameters
+    ----------
+    nodes : int
+        The number of nodes.
+
+    Returns
+    -------
+    float
+        The theoretical alpha star value.
+    """
     return 8.09 * nodes ** -0.48 * (1 - 19.4 / (4.8 * np.log(nodes) + 8.8))
 
 def theoretical_alpha_star_density(density):
+    """
+    Calculate the theoretical alpha star value for a given density.
+
+    Parameters
+    ----------
+    density : float
+        The density.
+
+    Returns
+    -------
+    float
+        The theoretical alpha star value.
+    """
     return 8.09 * (2.8 / density) ** -0.48 * (1 - 19.4 / (4.8 * np.log(2.8 / density) + 8.8))
 
 def plot_loglog(x_data, y_data, theoretical_curve, x_label, y_label, legend_real, legend_theoretical, y_limits=None, x_limits=None):
+    """
+    Plot a log-log graph with real and theoretical data.
+
+    Parameters
+    ----------
+    x_data : array-like
+        The x-values of the real data.
+    y_data : array-like
+        The y-values of the real data.
+    theoretical_curve : callable
+        A function that returns the theoretical y-values for a given set of x-values.
+    x_label : str
+        The label for the x-axis.
+    y_label : str
+        The label for the y-axis.
+    legend_real : str
+        The legend label for the real data.
+    legend_theoretical : str
+        The legend label for the theoretical data.
+    y_limits : tuple, optional
+        The limits for the y-axis (default is None).
+    x_limits : tuple, optional
+        The limits for the x-axis (default is None).
+    """
+
     plt.figure(figsize=(15, 15))
     plt.loglog(x_data, y_data, 'o', label=legend_real, markersize=10, linewidth=8, alpha=0.5)
     
@@ -71,6 +203,20 @@ def plot_loglog(x_data, y_data, theoretical_curve, x_label, y_label, legend_real
     plt.show()
 
 def plot_city_results(res, N, max_alpha=0.5, alpha_threshold=0.5):
+    """
+    Plot the results for a city.
+
+    Parameters
+    ----------
+    res : CityResult
+        The results for the city.
+    N : int
+        The number of nodes.
+    max_alpha : float, optional
+        The maximum alpha value (default is 0.5).
+    alpha_threshold : float, optional
+        The alpha threshold for filtering the results (default is 0.5).
+    """
     fig, axs = plt.subplots(2, 1)
     fig.set_figwidth(15)
     fig.set_figheight(15)
@@ -93,8 +239,18 @@ def plot_city_results(res, N, max_alpha=0.5, alpha_threshold=0.5):
     fig.suptitle(fr'$N_0$={N}')
     plt.show()
 
-def plot_theoretical_acceleration(N, figsize=(16, 9)):
-    alphas = [alpha for alpha in np.arange(0.001, 1, 0.001)]  # Используем np.arange вместо range
+def plot_theoretical_acceleration(N, figsize=(16, 9), max_alpha=1.0):
+    """
+    Plot the theoretical acceleration curve.
+
+    Parameters
+    ----------
+    N : int
+        The number of nodes.
+    max_alpha : float, optional
+        The maximum alpha value (default is 1.0).
+    """
+    alphas = np.arange(0.001, max_alpha, 0.001)  # Используем np.arange вместо range
     fig, ax = plt.subplots(figsize=figsize)  # Используем plt.subplots вместо plt.figure
     acceleration = [theoretical_acceleration(alpha, N) for alpha in alphas]
     a0 = optimal_a_star(N)

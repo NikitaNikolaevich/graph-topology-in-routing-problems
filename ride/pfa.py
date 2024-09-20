@@ -13,6 +13,30 @@ def find_path(
         from_node: int,
         to_node: int,
         alg='dijkstra') -> tuple[float, list[int]]:
+    """
+    Find the shortest path between two nodes in a graph using a specified algorithm.
+
+    Parameters
+    ----------
+    layer : GraphLayer
+        The graph layer to search in.
+    from_node : int
+        The node to start the search from.
+    to_node : int
+        The node to search for.
+    alg : str, optional
+        The algorithm to use for the search (default is 'dijkstra'). Can be 'dijkstra', 'bidirectional', or 'astar'.
+
+    Returns
+    -------
+    tuple[float, list[int]]
+        A tuple containing the length of the shortest path and the path itself.
+
+    Raises
+    ------
+    nx.NetworkXNoPath
+        If no path is found between the nodes.
+    """
     from_d = layer.graph.nodes[from_node]
     to_d = layer.graph.nodes[to_node]
 
@@ -95,6 +119,30 @@ def find_path_length(
         from_node: int,
         to_node: int,
         alg='dijkstra') -> float:
+    """
+    Find the length of the shortest path between two nodes in a graph using a specified algorithm.
+
+    Parameters
+    ----------
+    layer : GraphLayer
+        The graph layer to search in.
+    from_node : int
+        The node to start the search from.
+    to_node : int
+        The node to search for.
+    alg : str, optional
+        The algorithm to use for the search (default is 'dijkstra'). Can be 'dijkstra', 'bidirectional', or 'astar'.
+
+    Returns
+    -------
+    tuple[float, float, float, float]
+        A tuple containing the length of the shortest path, and the times taken for each step of the algorithm.
+
+    Raises
+    ------
+    nx.NetworkXNoPath
+        If no path is found between the nodes.
+    """
     from_d = layer.graph.nodes[from_node]
     to_d = layer.graph.nodes[to_node]
 

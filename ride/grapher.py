@@ -8,16 +8,50 @@ from typing import Dict, Tuple, List
 from ride.utils import DataGenerator
 
 class GraphProcessor:
+    """
+    A class for processing graphs.
+
+    Attributes
+    ----------
+    None
+
+    Methods
+    -------
+    create_G_centroid(H)
+        Creates a graph consisting of centroids of clusters and returns this graph along with clusters.
+    louvain_clusters(H, seed, weight, resolution)
+        Applies the Louvain community detection algorithm to the graph.
+    create_points_for_test(H, min_distance)
+        Generates points for testing based on clusters and distances between them.
+    search_resolutions(H, resolution, weight, alpha_max)
+        Searches for resolutions for the Louvain algorithm that achieve the desired ratio of the number of clusters to the number of nodes.
+    _get_clusters(H)
+        Extracts clusters from the graph.
+    _get_cluster_transitions(clusters, H)
+        Returns a list of neighboring clusters for each cluster.
+    _get_centroids(clusters, H)
+        Determines the centroids of clusters.
+    _create_graph_from_dict(H, cluster_transitions, centroids)
+        Creates a new graph based on centroids and transitions between clusters.
+    _add_clusters_to_nodes(H, communities)
+        Adds information about clusters to nodes in the graph.
+    """
+
     def create_G_centroid(H: nx.Graph) -> Tuple[nx.Graph, Dict[int, List[int]]]:
         """
-        Создает граф, состоящий из центроидов кластеров, и возвращает этот граф вместе с кластерами.
+        Creates a graph consisting of centroids of clusters and returns this graph along with clusters.
 
-        Параметры:
-            H (nx.Graph): Входной граф.
+        Parameters
+        ----------
+        H : nx.Graph
+            The input graph.
 
-        Возвращает:
-            G (nx.Graph): Граф с центроидами кластеров.
-            clusters (Dict[int, List[int]]): Словарь кластеров, где ключ — номер кластера, значение — список узлов.
+        Returns
+        -------
+        G : nx.Graph
+            The graph with centroids.
+        clusters : Dict[int, List[int]]
+            A dictionary of clusters, where the key is the cluster number and the value is a list of nodes.
         """
 
         clusters = GraphProcessor._get_clusters(H)
@@ -28,17 +62,25 @@ class GraphProcessor:
 
     def louvain_clusters(H: nx.Graph, seed: int = 0, weight: str = 'length', resolution: float = 1) -> Tuple[nx.Graph, Dict[int, List[int]]]:
         """
-        Применяет алгоритм кластеризации Лувена к графу.
+        Applies the Louvain community detection algorithm to the graph.
 
-        Параметры:
-            H (nx.Graph): Входной граф.
-            seed (int): Сид для генерации случайных чисел (по умолчанию 0).
-            weight (str): Взвешивание рёбер (по умолчанию 'length').
-            resolution (float): Параметр разрешения (по умолчанию 1).
+        Parameters
+        ----------
+        H : nx.Graph
+            The input graph.
+        seed : int
+            The seed for generating random numbers (default is 0).
+        weight : str
+            The edge weight (default is 'length').
+        resolution : float
+            The resolution parameter (default is 1).
 
-        Возвращает:
-            Н (nx.Graph): Граф с добавленными кластерами
-            communities (Dict[int, List[int]]): словарь кластеров.
+        Returns
+        -------
+        H : nx.Graph
+            The graph with added clusters.
+        communities : Dict[int, List[int]]
+            A dictionary of clusters.
         """
 
         communities = nx.community.louvain_communities(H, seed=seed, weight=weight, resolution=resolution)
@@ -47,13 +89,19 @@ class GraphProcessor:
 
     def create_points_for_test(H: nx.Graph, min_distance: int = 10) -> pd.DataFrame:
         """
-        Генерирует точки для тестирования на основе кластеров и расстояний между ними.
+        Generates points for testing based on clusters and distances between them.
 
-        Параметры:
-            H (nx.Graph): Входной граф.
-            min_distance (int): Минимальное расстояние между точками (по умолчанию 10).
-        Возвращает:
-            res (pd.DataFrame): Точки для тестирования.
+        Parameters
+        ----------
+        H : nx.Graph
+            The input graph.
+        min_distance : int
+            The minimum distance between points (default is 10).
+
+        Returns
+        -------
+        res : pd.DataFrame
+            The points for testing.
         """
 
         H, _ = GraphProcessor.louvain_clusters(H, resolution=1, weight='length')
@@ -64,16 +112,30 @@ class GraphProcessor:
 
     def search_resolutions(H: nx.Graph, resolution: float = 0.001, weight: str = 'length', alpha_max: float = 0.7) -> Tuple[List[float], List[float], List[int], List[int]]:
         """
-        Поиск разрешений для алгоритма Лувена, при которых достигается требуемое отношение числа кластеров к числу узлов.
+        Searches for resolutions for the Louvain algorithm, where the desired ratio of the number of clusters to the number of nodes is achieved.
 
-        Параметры:
-            H (nx.Graph): Входной граф.
-            resolution (float): Стартовое разрешение для алгоритма Лувена (по умолчанию 0.001).
-            weight (str): Взвешивание рёбер (по умолчанию 'length').
-            k_max (float): Максимальное значение отношения числа кластеров к числу узлов (по умолчанию 0.7).
-        Возвращает:
-            resolutions (Tuple[List[float], List[float], List[int], List[int]]): Списки разрешений, отношения кластеров к узлам, количество узлов и рёбер.
-"""
+        Parameters
+        ----------
+        H : nx.Graph
+            The input graph.
+        resolution : float
+            The starting resolution for the Louvain algorithm (default is 0.001).
+        weight : str
+            The edge weight (default is 'length').
+        alpha_max : float
+            The maximum value of the ratio of the number of clusters to the number of nodes (default is 0.7).
+
+        Returns
+        -------
+        resolutions : List[float]
+            The list of resolutions.
+        alphas : List[float]
+            The list of ratios.
+        nodes_subgraph : List[int]
+            The list of the number of nodes in the subgraph.
+        edges_subgraph : List[int]
+            The list of the number of edges in the subgraph.
+        """
         resolutions = []
         alpha = 0
         alphas = []
@@ -100,12 +162,17 @@ class GraphProcessor:
 
     def _get_clusters(H: nx.Graph) -> Dict[int, List[int]]:
         """
-        Извлекает кластеры из графа.
+        Extracts clusters from the graph.
 
-        Параметры:
-            H (nx.Graph): Входной граф.
-        Возвращает:
-            Словарь кластеров.
+        Parameters
+        ----------
+        H : nx.Graph
+            The input graph.
+
+        Returns
+        -------
+        clusters : Dict[int, List[int]]
+            A dictionary of clusters.
         """
         clusters = {}
         for node, data in H.nodes(data=True):
@@ -117,13 +184,19 @@ class GraphProcessor:
 
     def _get_cluster_transitions(clusters: Dict[int, List[int]], H: nx.Graph) -> Dict[int, List[int]]:
         """
-        Возвращает список соседних кластеров для каждого кластера.
+        Returns a list of neighboring clusters for each cluster.
 
-        Параметры:
-            clusters (Dict[int, List[int]]): Кластеры графа.
-            H (nx.Graph): Входной граф.
-        Возвращает:
-            Словарь с переходами между кластерами.
+        Parameters
+        ----------
+        clusters : Dict[int, List[int]]
+            The clusters of the graph.
+        H : nx.Graph
+            The input graph.
+
+        Returns
+        -------
+        cluster_transitions : Dict[int, List[int]]
+            A dictionary of cluster transitions.
         """
         cluster_transitions = {}
         for cluster, nodes in clusters.items():
@@ -138,14 +211,21 @@ class GraphProcessor:
 
     def _get_centroids(clusters: Dict[int, List[int]], H: nx.Graph) -> Dict[int, int]:
         """
-        Определяет центроиды кластеров.
+        Determines the centroids of clusters.
 
-        Параметры:
-            clusters (Dict[int, List[int]]): Кластеры графа.
-            H (nx.Graph): Входной граф.
-        Возвращает:
-            Словарь центроидов кластеров.
+        Parameters
+        ----------
+        clusters : Dict[int, List[int]]
+            The clusters of the graph.
+        H : nx.Graph
+            The input graph.
+
+        Returns
+        -------
+        centroids : Dict[int, int]
+            A dictionary of centroids.
         """
+
         centroids = {}
         for i in range(len(clusters)):
             nodes_ = [node for node, data in H.nodes(data=True) if data.get('cluster') == i]
@@ -157,15 +237,23 @@ class GraphProcessor:
     
     def _create_graph_from_dict(H, cluster_transitions: Dict[int, List[int]], centroids: Dict[int, int]) -> nx.Graph:
         """
-        Создаёт новый граф на основе центроидов и переходов между кластерами.
+        Creates a new graph based on centroids and transitions between clusters.
 
-        Параметры:
-            H (nx.Graph): Входной граф.
-            cluster_transitions (Dict[int, List[int]]): Словарь переходов между кластерами.
-            centroids (Dict[int, int]): Словарь центроидов кластеров.
-        Возвращает:
-            Граф на основе центроидов.
+        Parameters
+        ----------
+        H : nx.Graph
+            The input graph.
+        cluster_transitions : Dict[int, List[int]]
+            A dictionary of cluster transitions.
+        centroids : Dict[int, int]
+            A dictionary of centroids.
+
+        Returns
+        -------
+        G : nx.Graph
+            The new graph.
         """
+
         G = nx.Graph()
         for node, neighbors in cluster_transitions.items():
             for neighbor in neighbors:
@@ -177,11 +265,14 @@ class GraphProcessor:
 
     def _add_clusters_to_nodes(H: nx.Graph, communities: Dict[int, List[int]]) -> None:
         """
-        Добавляет информацию о кластерах узлам графа.
+        Adds information about clusters to nodes in the graph.
 
-        Параметры:
-            H (nx.Graph): Входной граф.
-            communities (Dict[int, List[int]]): Кластеры графа.
+        Parameters
+        ----------
+        H : nx.Graph
+            The input graph.
+        communities : Dict[int, List[int]]
+            A dictionary of clusters.
         """
         for i, ids in enumerate(communities):
             for j in ids:
@@ -189,18 +280,44 @@ class GraphProcessor:
 
     
 class GraphRunner:
+    """
+    A class for running graph clustering algorithms and evaluating their performance.
+
+    Attributes
+    ----------
+    None
+
+    Methods
+    -------
+    test(H, resolutions, k=100, min_distance=10, weight='length')
+        Test the performance of the graph clustering algorithm on a given graph.
+    compute_shortest_path_length_dijkstra(H, part, weight)
+        Compute the shortest path length between the pairs of nodes using Dijkstra's algorithm.
+    calculate_error(all_length, all_length_centroids)
+        Calculate the error between the shortest path lengths computed using Dijkstra's algorithm and the centroid graph.
+    compute_shortest_path_length_centroid(H, resolution, part, weight, output)
+        Compute the shortest path length between the pairs of nodes using the centroid graph.
+    """
+
     def test(H: nx.Graph, resolutions: list, k: int=100, min_distance: int=10, weight:str='length'):
         """
         Test the performance of the graph clustering algorithm on a given graph.
 
-        Parameters:
-        H (nx.Graph): The input graph.
-        resolutions (list): A list of resolution values to use for the Louvain clustering algorithm.
-        k (int): The number of random pairs of nodes to test.
-        min_distance (int): The minimum distance between the nodes in the random pairs.
-        weight (str): The name of the edge attribute to use as the weight.
+        Parameters
+        ----------
+        H : nx.Graph
+            The input graph.
+        resolutions : list
+            A list of resolution values to use for the Louvain clustering algorithm.
+        k : int, optional
+            The number of random pairs of nodes to test (default is 100).
+        min_distance : int, optional
+            The minimum distance between the nodes in the random pairs (default is 10).
+        weight : str, optional
+            The name of the edge attribute to use as the weight (default is 'length').
 
-        Returns:
+        Returns
+        -------
         A pandas DataFrame containing the results of the test.
         """
 
@@ -246,12 +363,17 @@ class GraphRunner:
         """
         Compute the shortest path length between the pairs of nodes using Dijkstra's algorithm.
 
-        Parameters:
-        H (nx.Graph): The input graph.
-        part (list): A list of random pairs of nodes.
-        weight (str): The name of the edge attribute to use as the weight.
+        Parameters
+        ----------
+        H : nx.Graph
+            The input graph.
+        part : list
+            A list of random pairs of nodes.
+        weight : str
+            The name of the edge attribute to use as the weight.
 
-        Returns:
+        Returns
+        -------
         A list of shortest path lengths between the pairs of nodes.
         """
 
@@ -266,6 +388,21 @@ class GraphRunner:
         return time_calc, all_length
     
     def calculate_error(all_length, all_length_centroids):
+        """
+        Calculate the error between the shortest path lengths computed using Dijkstra's algorithm and the centroid graph.
+
+        Parameters
+        ----------
+        all_length : list
+            A list of shortest path lengths computed using Dijkstra's algorithm.
+        all_length_centroids : list
+            A list of shortest path lengths computed using the centroid graph.
+
+        Returns
+        -------
+        A dictionary containing the total error and all errors.
+        """
+
         # errors = (np.array(all_length_centroids).sum() - np.array(all_length).sum()) / np.array(all_length).sum() * 100
         # errors_for_box_plot = (np.array(all_length_centroids) - np.array(all_length)) / np.array(all_length) * 100
         errors = (np.array(all_length_centroids).sum() * 100 / np.array(all_length).sum()) - 100
@@ -277,14 +414,21 @@ class GraphRunner:
         """
         Compute the shortest path length between the pairs of nodes using the centroid graph.
 
-        Parameters:
-        H (nx.Graph): The input graph.
-        resolutions (int): Resolution value to use for the Louvain clustering algorithm.
-        part (list): A list of random pairs of nodes.
-        all_length (list): A list of shortest path lengths between the pairs of nodes computed using Dijkstra's algorithm.
-        weight (str): The name of the edge attribute to use as the weight.
+        Parameters
+        ----------
+        H : nx.Graph
+            The input graph.
+        resolution : int
+            Resolution value to use for the Louvain clustering algorithm.
+        part : list
+            A list of random pairs of nodes.
+        weight : str
+            The name of the edge attribute to use as the weight.
+        output : dict
+            A dictionary to store the results.
 
-        Returns:
+        Returns
+        -------
         A pandas DataFrame containing the results of the test.
         """
 

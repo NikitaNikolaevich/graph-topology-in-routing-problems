@@ -19,6 +19,24 @@ def test_path(
         point_from: int,
         point_to: int
 ) -> float:
+    """
+    Test the path between two points in a graph layer.
+
+    Parameters
+    ----------
+    layer : GraphLayer
+        The graph layer to test.
+    point_from : int
+        The starting point of the path.
+    point_to : int
+        The ending point of the path.
+
+    Returns
+    -------
+    float
+        The length of the path between the two points, or -1 if an error occurs.
+    """
+
     try:
         my_path = find_path(layer, point_from, point_to)
     except Exception as e:
@@ -32,6 +50,24 @@ def test_layer(
         layer: GraphLayer,
         alg='dijkstra'
 ) -> tuple[float, list[float]]:
+    """
+    Test the layer of a graph.
+
+    Parameters
+    ----------
+    points : list[list[int, int]]
+        A list of pairs of points to test.
+    layer : GraphLayer
+        The graph layer to test.
+    alg : str, optional
+        The algorithm to use for testing (default is 'dijkstra').
+
+    Returns
+    -------
+    tuple[float, list[float]]
+        A tuple containing the total time taken and a list of path lengths.
+    """
+
     test_paths: list[float] = []
     total1, total2, total3 = 0.0,0.0,0.0
     start_time = time.time()
@@ -47,6 +83,24 @@ def test_layer(
 
 
 def get_usual_result(g: nx.Graph, points: list[tuple[int, int]], alg='dijkstra') -> tuple[float, list[float]]:
+    """
+    Get the usual result for a graph.
+
+    Parameters
+    ----------
+    g : nx.Graph
+        The graph to get the usual result for.
+    points : list[tuple[int, int]]
+        A list of pairs of points to test.
+    alg : str, optional
+        The algorithm to use for testing (default is 'dijkstra').
+
+    Returns
+    -------
+    tuple[float, list[float]]
+        A tuple containing the total time taken and a list of path lengths.
+    """
+
     usual_results: list[float] = []
 
     def h(a, b):
@@ -71,6 +125,21 @@ def get_usual_result(g: nx.Graph, points: list[tuple[int, int]], alg='dijkstra')
 
 
 def get_points(graph: nx.Graph, N: int) -> list[tuple[int, int]]:
+    """
+    Get a list of points from a graph.
+
+    Parameters
+    ----------
+    graph : nx.Graph
+        The graph to get points from.
+    N : int
+        The number of points to get.
+
+    Returns
+    -------
+    list[tuple[int, int]]
+        A list of pairs of points.
+    """
     return [get_node_for_initial_graph(graph) for _ in range(N)]
 
 
@@ -80,6 +149,26 @@ def generate_result(
         resolution: float,
         layer: GraphLayer
 ) -> CentroidResult:
+    """
+    Generate a result for a test.
+
+    Parameters
+    ----------
+    usual_results : tuple[float, list[float]]
+        The usual result for the test.
+    test_results : tuple[float, list[float]]
+        The test result for the test.
+    resolution : float
+        The resolution of the test.
+    layer : GraphLayer
+        The graph layer used for the test.
+
+    Returns
+    -------
+    CentroidResult
+        The generated result.
+    """
+
     test_time = test_results[0]
     result = CentroidResult(
         resolution,
@@ -109,6 +198,38 @@ def test_graph(graph: nx.Graph,
                logs=True,
                alg='dijkstra',
                save=False) -> CityResult:
+    """
+    Test a graph.
+
+    Parameters
+    ----------
+    graph : nx.Graph
+        The graph to test.
+    name : str
+        The name of the graph.
+    city_id : str
+        The ID of the city.
+    points : list[tuple[int, int]], optional
+        List of points to test (default is None).
+    resolutions : list[float], optional
+        A list of resolutions to test (default is None).
+    alpha_range : tuple[float, float], optional
+        The range of alpha values to test (default is (0.1, 0.2)).
+    pos : int, optional
+        The position of the test (default is 2).
+    logs : bool, optional
+        Whether to print logs (default is True).
+    alg : str, optional
+        The algorithm to use for testing (default is 'dijkstra').
+    save : bool, optional
+        Whether to save the result (default is False).
+
+    Returns
+    -------
+    CityResult
+        The result of the test.
+    """
+
     max_alpha = alpha_range[1]
     delta = max_alpha / 40
     if resolutions is None:
@@ -208,6 +329,36 @@ def test_graph(graph: nx.Graph,
 
 def test_graph_swapp(graph: nx.Graph, name: str, city_id: str, p: float, points: list[tuple[int, int]] = None,
                      resolutions: list[float] = None, pos=2, logs=True, alg='dijkstra') -> CityResult:
+    """
+    Test a graph with edge swapping.
+
+    Parameters
+    ----------
+    graph : nx.Graph
+        The graph to test.
+    name : str
+        The name of the graph.
+    city_id : str
+        The ID of the city.
+    p : float
+        The percentage of edges to swap.
+    points : list[tuple[int, int]], optional
+        List of points to test (default is None).
+    resolutions : list[float], optional
+        A list of resolutions to test (default is None).
+    pos : int, optional
+        The position of the test (default is 2).
+    logs : bool, optional
+        Whether to print logs (default is True).
+    alg : str, optional
+        The algorithm to use for testing (default is 'dijkstra').
+
+    Returns
+    -------
+    CityResult
+        The result of the test.
+    """
+
     print(name, nx.is_connected(graph))
     max_alpha = 1
     delta = max_alpha / 40
@@ -284,6 +435,22 @@ def test_graph_swapp(graph: nx.Graph, name: str, city_id: str, p: float, points:
 
 
 def connected_double_edge_swap(G, nswap=1):
+    """
+    Perform a double edge swap on a graph while keeping it connected.
+
+    Parameters
+    ----------
+    G : nx.Graph
+        The graph to perform the swap on.
+    nswap : int, optional
+        The number of swaps to perform (default is 1).
+
+    Returns
+    -------
+    int
+        The number of swaps performed.
+    """
+
     n = 0
     swapcount = 0
     dk = [n for n, d in G.degree()]
@@ -386,6 +553,22 @@ def connected_double_edge_swap(G, nswap=1):
 
 
 def get_resolution_for_alpha(graph: nx.Graph, alpha: float) -> float:
+    """
+    Get the resolution for a given alpha value.
+
+    Parameters
+    ----------
+    graph : nx.Graph
+        The graph to get the resolution for.
+    alpha : float
+        The alpha value.
+
+    Returns
+    -------
+    float
+        The resolution for the given alpha value.
+    """
+
     right_resolution = 5000
     left_resolution = 0.01
     y = len(graph_generator.resolve_communities(graph, (left_resolution + right_resolution) / 2)) / len(graph.nodes)

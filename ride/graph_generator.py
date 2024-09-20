@@ -22,6 +22,23 @@ from ride.common import GraphLayer
 
 
 def extract_cluster_list_subgraph(graph: nx.Graph, cluster_number: list[int] | set[int], communities=None) -> nx.Graph:
+    """
+        Extracts a subgraph from the given graph, containing only the nodes belonging to the specified clusters.
+
+        Parameters
+        ------------
+        graph : nx.Graph
+            The original graph
+        cluster_number : list[int] | set[int]
+            A list or set of cluster numbers to extract
+        communities : list[set[int]], optional
+            A list of communities, where each community is a set of node IDs (default is None)
+
+        Returns
+        --------
+        nx.Graph
+            The subgraph containing only the nodes belonging to the specified clusters
+    """
     if communities:
         nodes_to_keep = [u for c in cluster_number for u in communities[c]]
     else:
@@ -47,6 +64,26 @@ def extract_cluster_list_subgraph(graph: nx.Graph, cluster_number: list[int] | s
 
 
 def resolve_communities(H: nx.Graph, r: float = 20) -> list[set[int]]:
+    """
+        Resolve communities in a graph using the Louvain community detection algorithm.
+
+        Parameters
+        ----------
+        H : nx.Graph
+            The graph to resolve communities in.
+        r : float, optional
+            The resolution parameter for the Louvain algorithm (default is 20).
+
+        Returns
+        -------
+        list[set[int]]
+            A list of sets of node IDs representing the resolved communities.
+
+        Notes
+        -----
+        This function uses the Louvain community detection algorithm to resolve communities in the graph.
+        It also assigns a 'cluster' attribute to each node in the graph with the community ID.
+    """
     communities = nx.community.louvain_communities(H,
                                                    seed=1534,
                                                    weight='length',
@@ -66,6 +103,23 @@ def resolve_communities(H: nx.Graph, r: float = 20) -> list[set[int]]:
 
 
 def get_cluster_to_neighboring_clusters(H: nx.Graph) -> dict[int, set[int]]:
+    """
+        Returns a dictionary mapping each cluster to its neighboring clusters in the graph.
+
+        Parameters
+        ----------
+        H : nx.Graph
+            The graph to get neighboring clusters from.
+
+        Returns
+        -------
+        dict[int, set[int]]
+            A dictionary where each key is a cluster ID and the value is a set of neighboring cluster IDs.
+
+        Notes
+        -----
+        This function iterates over the nodes in the graph, and for each node, it finds the neighboring clusters and adds them to the dictionary.
+    """
     cls_to_neighboring_cls = {}
     for u in H.nodes():
         du = H.nodes[u]
@@ -85,6 +139,23 @@ def get_cluster_to_neighboring_clusters(H: nx.Graph) -> dict[int, set[int]]:
 
 
 def get_cluster_to_bridge_points(H: nx.Graph) -> dict[int, set[int]]:
+    """
+        Returns a dictionary mapping each cluster to its bridge points in the graph.
+
+        Parameters
+        ----------
+        H : nx.Graph
+            The graph to get bridge points from.
+
+        Returns
+        -------
+        dict[int, set[int]]
+            A dictionary where each key is a cluster ID and the value is a set of node IDs that are bridge points for that cluster.
+
+        Notes
+        -----
+        This function iterates over the nodes in the graph, and for each node, it finds the bridge points for each cluster and adds them to the dictionary.
+    """
     cls_to_bridge_points = {}
     for u in H.nodes():
         from_node = H.nodes[u]
@@ -105,6 +176,23 @@ def get_cluster_to_bridge_points(H: nx.Graph) -> dict[int, set[int]]:
 
 
 def get_cluster_to_centers(X: nx.Graph) -> dict[int, int]:
+    """
+        Returns a dictionary mapping each cluster to its center node in the graph.
+
+        Parameters
+        ----------
+        X : nx.Graph
+            The graph to get cluster centers from.
+
+        Returns
+        -------
+        dict[int, int]
+            A dictionary where each key is a cluster ID and the value is the node ID of the cluster center.
+
+        Notes
+        -----
+        This function creates a dictionary that maps each cluster to its center node in the graph.
+    """
     cls_to_center = {d['cluster']: u for u, d in X.nodes(data=True)}
     return cls_to_center
 
@@ -128,7 +216,33 @@ def build_center_graph(
         use_all_point: bool = True,
         has_coordinates: bool = True) -> nx.Graph:
     """
-        строим граф центройд по комьюнити для графа G
+        Builds a center graph for the given graph G.
+
+        Parameters
+        ----------
+        graph : nx.Graph
+            The original graph.
+        communities : list[set[int]]
+            A list of communities in the graph.
+        cluster_to_bridge_points : dict[int, set[int]]
+            A dictionary mapping each cluster to its bridge points.
+        cluster_to_neighboring_cluster : dict[int, set[int]]
+            A dictionary mapping each cluster to its neighboring clusters.
+        p : float, optional
+            Not used in this function (default is 1.0).
+        use_all_point : bool, optional
+            Not used in this function (default is True).
+        has_coordinates : bool, optional
+            Whether the graph has node coordinates (default is True).
+
+        Returns
+        -------
+        nx.Graph
+            The center graph.
+
+        Notes
+        -----
+        This function first finds the center node for each community, then adds edges between the center nodes based on the neighboring clusters.
     """
     centers = {}
     X = nx.Graph()
@@ -174,6 +288,23 @@ def build_center_graph(
 
 
 def get_node_for_initial_graph(H: nx.Graph):
+    """
+        Returns two random nodes from the graph H.
+
+        Parameters
+        ----------
+        H : nx.Graph
+            The graph to select nodes from.
+
+        Returns
+        -------
+        tuple[int, int]
+            Two random nodes from the graph.
+
+        Notes
+        -----
+        This function selects two random nodes from the graph, ensuring they are not the same.
+    """
     nodes = list(H.nodes())
     f, t = random.choice(nodes), random.choice(nodes)
     while f == t:
@@ -183,6 +314,34 @@ def get_node_for_initial_graph(H: nx.Graph):
 
 def generate_layer(H: nx.Graph, resolution: float, p: float = 1, use_all_point: bool = True, communities=None,
                    has_coordinates: bool = False) -> GraphLayer:
+    """
+        Generates a graph layer based on the input graph and parameters.
+
+        Parameters
+        ----------
+        H : nx.Graph
+            The input graph.
+        resolution : float
+            The resolution for community detection.
+        p : float, optional
+            Not used in this function (default is 1).
+        use_all_point : bool, optional
+            Not used in this function (default is True).
+        communities : list[set[int]], optional
+            Pre-computed communities (default is None).
+        has_coordinates : bool, optional
+            Whether the graph has coordinates (default is False).
+
+        Returns
+        -------
+        GraphLayer
+            The generated graph layer.
+
+        Notes
+        -----
+        This function first resolves the communities in the graph, then builds the neighboring clusters, bridge points, and centroid graph.
+    """
+
     start = time.time()
     if communities is None:
         communities = resolve_communities(H, resolution)
