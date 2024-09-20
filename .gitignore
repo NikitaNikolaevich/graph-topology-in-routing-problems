@@ -164,3 +164,5 @@ cython_debug/
 /data/img_1
 /examples/cache
 /.vscode
+/data/results/for_test
+/VRP
