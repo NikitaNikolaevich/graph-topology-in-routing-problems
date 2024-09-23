@@ -8,7 +8,7 @@
 [![Documentation Status](https://readthedocs.org/projects/graph-topology-in-routing-problems/badge/?version=latest)](https://graph-topology-in-routing-problems.readthedocs.io/en/latest/?badge=latest)
 <!-- [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/NikitaNikolaevich/graph-topology-in-routing-problems/main?urlpath=https%3A%2F%2Fgithub.com%2FNikitaNikolaevich%2Fgraph-topology-in-routing-problems%2Fblob%2Fdocs%2Fexamples%2Fexamples.ipynb) -->
 
-<img align="right" src="docs/logo/logo.png" alt="Your Banner" width="20%">
+<img align="right" src="./images/logo2.png" alt="Your Banner" width="30%">
 
 **RIDE** (Rapid infra-cluster dijkstra enhancer) library
 
@@ -69,9 +69,9 @@ The relationship between the maximum acceleration $γ_{max}$ and the number of v
 ![Max Acceleration](./images/max_acceleration.png)
 -->
 
-## Contributing
+<!-- ## Contributing
 
-We welcome contributions! Please read our [Contributing Guidelines](CONTRIBUTING.md) for more information.
+We welcome contributions! Please read our [Contributing Guidelines](CONTRIBUTING.md) for more information. -->
 
 ## License
 
