@@ -8,10 +8,8 @@ import numpy as np
 from tqdm import tqdm, trange
 
 from ride import graph_generator
-from ride import pfa
-from ride.common import GraphLayer, CentroidResult, CityResult
+from ride.common import GraphLayer, CentroidResult, CityResult, find_path, find_path_length
 from ride.graph_generator import generate_layer, get_node_for_initial_graph
-from ride.pfa import find_path
 
 
 def test_path(
@@ -72,7 +70,7 @@ def test_layer(
     total1, total2, total3 = 0.0,0.0,0.0
     start_time = time.time()
     for point_from, point_to in points:
-        path,s1,s2,s3 = pfa.find_path_length(layer, point_from, point_to, alg=alg)
+        path,s1,s2,s3 = find_path_length(layer, point_from, point_to, alg=alg)
         total1+=s1
         total2+=s2
         total3+=s3
@@ -244,7 +242,7 @@ def test_graph(graph: nx.Graph,
         resolutions += [i for i in range(500, 1000, 50)]
         resolutions += [i for i in range(1000, 5000, 200)]
     if points is None:
-        N: int = 1000
+        N: int = 100
         points = [get_node_for_initial_graph(graph) for _ in range(N)]
     else:
         N = len(points)
@@ -287,7 +285,8 @@ def test_graph(graph: nx.Graph,
         alphas.add(a)
         layer, build_communities, build_additional, build_centroid_graph = generate_layer(graph, r,
                                                                                           has_coordinates=has_coords,
-                                                                                          communities=community)
+                                                                                          communities=community,
+                                                                                          times=True)
         test_time, test_paths, total1, total2, total3 = test_layer(points, layer, alg=alg)
         tmp = [test_time, test_paths]
         total = time.time() - start
@@ -412,7 +411,8 @@ def test_graph_swapp(graph: nx.Graph, name: str, city_id: str, p: float, points:
         alphas.add(a)
         layer, build_communities, build_additional, build_centroid_graph = generate_layer(graph, r,
                                                                                           has_coordinates=has_coords,
-                                                                                          communities=community)
+                                                                                          communities=community,
+                                                                                          times=True)
         tmp = test_layer(points, layer, alg=alg)
         total = time.time() - start
         text = """
