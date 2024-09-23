@@ -6,6 +6,7 @@
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![PythonVersion](https://img.shields.io/badge/python-3.11-blue)](https://pypi.org/project/scikit-learn/)
 [![Documentation Status](https://readthedocs.org/projects/graph-topology-in-routing-problems/badge/?version=latest)](https://graph-topology-in-routing-problems.readthedocs.io/en/latest/?badge=latest)
+<!-- [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/NikitaNikolaevich/graph-topology-in-routing-problems/main?urlpath=https%3A%2F%2Fgithub.com%2FNikitaNikolaevich%2Fgraph-topology-in-routing-problems%2Fblob%2Fdocs%2Fexamples%2Fexamples.ipynb) -->
 
 <img align="right" src="docs/logo/logo.png" alt="Your Banner" width="20%">
 
@@ -45,8 +46,8 @@ We encourage you to find suitable code snippet in the examples folder :)
 # Findings
 
 The relationship between theoretical estimations and empirical cal-
-culations. Figure 10a – the relationship between the maximum of acceleration γmax and the number of vertices N0 in the graph.
-the relationship between the optimal value of the α∗parameter and the number of vertices N0 (Formula 3.5.3). Figure 10c – the dependence of the maximum acceleration γmax on the graph density D (unscaled characteristic) along with the theoretical estimations , considering the equality given by D=2β0/N0.
+culations. Figure 1,3 – the relationship between the maximum of acceleration γmax and the number of vertices N0 in the graph.
+the relationship between the optimal value of the α∗parameter and the number of vertices N0. Figure 2 – the dependence of the maximum acceleration γmax on the graph density D (unscaled characteristic) along with the theoretical estimations, considering the equality given by D=2β0/N0.
 
 Developed algorithm was applied for 600 cities and the following dependencies were obtained:
 
