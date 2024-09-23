@@ -20,6 +20,7 @@ requests = "^2.31.0"
 ipykernel = "^6.29.4"
 matplotlib = "^3.8.4"
 furo = "^2024.8.6"
+folium = "^0.17.0"
 
 
 [build-system]
