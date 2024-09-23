@@ -65,4 +65,4 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ---
 
-For more information, check out our [documentation](https://github.com/NikitaNikolaevich/graph-topology-in-routing-problems/wiki).
+For more information, check out our [documentation](https://graph-topology-in-routing-problems.readthedocs.io/en/latest/).
