@@ -12,6 +12,8 @@
 **RIDE** (Rapid infra-cluster dijkstra enhancer) library
 
 The RIDE is a python library for accelerating Deikstra task on any graphs with hierarchical method involving solving a problem on simpler graphs with further combining solutions into a common one. The method is based on the division of the graph into clusters. By using this division, you can eliminate many sub optimal route constructions and achieve multiple-time acceleration without significant loss of accuracy. More information about method ine can find soon in corresponding _article_.
+
+***It is worth noting that this method works for both transport and abstract graphs.***
 <!-- 
 <img src=https://github.com/NikitaNikolaevich/graph-topology-in-routing-problems/blob/main/images/milan.png width="600"/>
 -->
@@ -25,24 +27,40 @@ to install via pip without listing on pipy do:
 
 # Quick start
 
-First, you need to choose a graph for a quick start. You can create or download one yourself, or use the function to download a graph from Open Street Maps by city id.
+We encourage you to find suitable code snippet in the examples folder :)
 
+# How it works:
+1. Creation of a new graph based on centers of initial graph clusters
 
-```
-#example city_id (44915) for Prague, Czechia
-#see more on osn webpage: https://www.openstreetmap.org/relation/435514
+![Clustering](./images/clustering.png)
 
-G = DataGetter.download_graph(id="R435514")
-```
+2. Computation of shortes path on a new cluster-based graph (this contraction-hierarchy based approach is obviously faster hhan straight forward calcylation of shortest path, but less accurate)
 
+![Subgraph_path](./images/subgraph_path.png)
 
-It is worth noting that this method works for both transport and abstract graphs.
+3. Comparison of obtained metric for error-speedup trade-off
 
-# Results
+![Subgraph_path](./images/metrics.png)
 
-Explore the performance of the Hierarchical Pathfinding Algorithm compared to the classical Dijkstra algorithm through the following graphs:
+# Findings
 
-![Prague Graph](./images/Prague.png)
+The relationship between theoretical estimations and empirical cal-
+culations. Figure 10a – the relationship between the maximum of acceleration γmax and the number of vertices N0 in the graph.
+the relationship between the optimal value of the α∗parameter and the number of vertices N0 (Formula 3.5.3). Figure 10c – the dependence of the maximum acceleration γmax on the graph density D (unscaled characteristic) along with the theoretical estimations , considering the equality given by D=2β0/N0.
+
+Developed algorithm was applied for 600 cities and the following dependencies were obtained:
+
+<div style="text-align: center;">
+    <img align="left" src="./images/all_a.png" alt="Your Banner1" width="30%">
+    <img align="center" src="./images/all_y.png" alt="Your Banner2" width="30%">
+    <img align="right" src="./images/all_y_max.png" alt="Your Banner3" width="30%">
+</div>
+
+<!-- # Results
+
+Explore the performance of the Hierarchical Pathfinding Algorithm compared to the classical Dijkstra algorithm through the following graphs: -->
+
+<!-- ![Prague Graph](./images/Prague.png) -->
 
 <!-- 
 The relationship between the maximum acceleration $γ_{max}$ and the number of vertices $N_0$ in the graph.
