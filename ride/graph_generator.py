@@ -8,6 +8,8 @@ import numpy as np
 import osmnx as ox
 from tqdm import tqdm
 from ride.common import GraphLayer
+from typing import Union
+from ride.utils import extract_cluster_list_subgraph
 
 
 # def get_dist(du, dv) -> float:
@@ -20,30 +22,6 @@ from ride.common import GraphLayer
 #     nodes_to_keep = [node for node, data in graph.nodes(data=True) if data['cluster'] == cluster_number]
 #     return graph.subgraph(nodes_to_keep)
 
-
-def extract_cluster_list_subgraph(graph: nx.Graph, cluster_number: list[int] | set[int], communities=None) -> nx.Graph:
-    """
-        Extracts a subgraph from the given graph, containing only the nodes belonging to the specified clusters.
-
-        Parameters
-        ------------
-        graph : nx.Graph
-            The original graph
-        cluster_number : list[int] | set[int]
-            A list or set of cluster numbers to extract
-        communities : list[set[int]], optional
-            A list of communities, where each community is a set of node IDs (default is None)
-
-        Returns
-        --------
-        nx.Graph
-            The subgraph containing only the nodes belonging to the specified clusters
-    """
-    if communities:
-        nodes_to_keep = [u for c in cluster_number for u in communities[c]]
-    else:
-        nodes_to_keep = [node for node, data in graph.nodes(data=True) if data['cluster'] in cluster_number]
-    return graph.subgraph(nodes_to_keep)
 
 
 # def get_graph(city_id: str = 'R2555133') -> nx.Graph:
@@ -312,8 +290,8 @@ def get_node_for_initial_graph(H: nx.Graph):
     return f, t
 
 
-def generate_layer(H: nx.Graph, resolution: float, p: float = 1, use_all_point: bool = True, communities=None,
-                   has_coordinates: bool = False) -> GraphLayer:
+def generate_layer(H: nx.Graph, resolution: Union[float, int], p: float = 1, use_all_point: bool = True, communities=None,
+                   has_coordinates: bool = False, times=False) -> GraphLayer:
     """
         Generates a graph layer based on the input graph and parameters.
 
@@ -373,4 +351,6 @@ def generate_layer(H: nx.Graph, resolution: float, p: float = 1, use_all_point: 
         cluster_to_centers,
         centroids_graph
     )
-    return layer, build_communities, build_additional, build_centroid_graph
+    if times:
+        return layer, build_communities, build_additional, build_centroid_graph
+    return layer
