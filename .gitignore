@@ -166,3 +166,4 @@ cython_debug/
 /.vscode
 /data/results/for_test
 /VRP
+*.html
