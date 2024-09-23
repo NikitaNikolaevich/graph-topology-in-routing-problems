@@ -223,12 +223,16 @@ def plot_city_results(res, N, max_alpha=0.5, alpha_threshold=0.5):
 
     alpha = np.array([p.alpha for p in res.points_results])
     speed_up = np.array([p.speed_up[0] for p in res.points_results])
+    resolutions = np.array([p.resolution for p in res.points_results])
 
     # Теоретическое значение alpha*
     a0 = optimal_a_star(N)
     
     # Построение графика ускорения
     plot_acceleration(axs[0], alpha, speed_up, N, a0, theoretical_acceleration, max_alpha)
+
+    for i, (x, y, resolution) in enumerate(zip(alpha, speed_up, resolutions)):
+        axs[0].annotate(f'{resolution:.2f}', (x, y), textcoords="offset points", xytext=(0,10), ha='center')
 
     # Форматирование лейблов для боксплота
     labels = format_labels(res.points_results, alpha_threshold)

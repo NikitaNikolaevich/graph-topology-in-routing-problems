@@ -89,7 +89,6 @@ class DataGetter:
         G : Graph
             The new graph.
         """
-        # G = nx.MultiDiGraph(graph)
         G = nx.Graph(graph)
         return G
 
@@ -108,7 +107,6 @@ class DataGetter:
         H : Graph
             The empty graph.
         """
-        # H = nx.MultiDiGraph()
         H = nx.Graph()
         H.graph['id'] = id
         return H
@@ -519,3 +517,28 @@ class DataGenerator:
         m = len(H.nodes())
         n = len(H.edges())
         return (n*math.log(n) + m*math.log(n))
+    
+
+def extract_cluster_list_subgraph(graph: nx.Graph, cluster_number: list[int] | set[int], communities=None) -> nx.Graph:
+    """
+        Extracts a subgraph from the given graph, containing only the nodes belonging to the specified clusters.
+
+        Parameters
+        ------------
+        graph : nx.Graph
+            The original graph
+        cluster_number : list[int] | set[int]
+            A list or set of cluster numbers to extract
+        communities : list[set[int]], optional
+            A list of communities, where each community is a set of node IDs (default is None)
+
+        Returns
+        --------
+        nx.Graph
+            The subgraph containing only the nodes belonging to the specified clusters
+    """
+    if communities:
+        nodes_to_keep = [u for c in cluster_number for u in communities[c]]
+    else:
+        nodes_to_keep = [node for node, data in graph.nodes(data=True) if data['cluster'] in cluster_number]
+    return graph.subgraph(nodes_to_keep)
