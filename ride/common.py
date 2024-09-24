@@ -417,24 +417,28 @@ class GraphLayer:
            return m
 
 
-    def draw_path(self, nodes: list[int], x: list[float], y: list[float], visible=False):
+    def draw_path(self, nodes: list[int], x: list[float] = None, y: list[float]= None, visible=False, save=False):
+        if not x:
+            x = [self.graph.nodes[node]['x'] for node in nodes]
+        if not y:
+            y = [self.graph.nodes[node]['y'] for node in nodes]
+
         m = folium.Map(location=[y[0], x[0]], zoom_start=10)
 
         for i in range(len(nodes) - 1):
             folium.PolyLine([[y[i], x[i]], [y[i + 1], x[i + 1]]], color='red', weight=5).add_to(m)
-        # for node in nodes:
-        #     folium.Marker([y[node], x[node]], popup=str(node)).add_to(m)
 
-        m.save('path.html')
+        if save:
+            m.save('path.html')
         
         if visible:
            return m
 
-    def find_path(self, from_node: int, to_node: int, alg: str = 'dijkstra', draw_path=False, visible=False) -> tuple[float, list[int]]:
+    def find_path(self, from_node: int, to_node: int, alg: str = 'dijkstra', draw_path=False, visible=False, save=False) -> tuple[float, list[int]]:
         distance, nodes = find_path(self, from_node, to_node, alg)
         x = [self.graph.nodes[node]['x'] for node in nodes]
         y = [self.graph.nodes[node]['y'] for node in nodes]
         if draw_path:
-            maps = self.draw_path(nodes, x, y, visible=visible)
+            maps = self.draw_path(nodes, x, y, visible=visible, save=save)
             return distance, nodes, maps
         return distance, nodes
