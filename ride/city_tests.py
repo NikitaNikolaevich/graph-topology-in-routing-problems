@@ -7,6 +7,7 @@ import networkx as nx
 import numpy as np
 from tqdm import tqdm, trange
 
+from ride.formulas import optimal_a_star
 from ride import graph_generator
 from ride.common import GraphLayer, CentroidResult, CityResult, find_path, find_path_length
 from ride.graph_generator import generate_layer, get_node_for_initial_graph
@@ -191,7 +192,7 @@ def test_graph(graph: nx.Graph,
                city_id: str,
                points: list[tuple[int, int]] = None,
                resolutions: list[float] = None,
-               alpha_range: tuple[float, float] = (0.1, 0.2),
+               alpha_range: tuple[float, float] = None,
                pos=2,
                logs=True,
                alg='dijkstra',
@@ -227,7 +228,8 @@ def test_graph(graph: nx.Graph,
     CityResult
         The result of the test.
     """
-
+    if not alpha_range:
+        alpha_range = (optimal_a_star(graph.number_of_nodes()) - 0.01, optimal_a_star(graph.number_of_nodes()) + 0.01)
     max_alpha = alpha_range[1]
     delta = max_alpha / 40
     if resolutions is None:

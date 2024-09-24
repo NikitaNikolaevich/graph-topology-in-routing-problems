@@ -28,7 +28,37 @@ to install via pip without listing on pipy do:
 
 # Quick start
 
-We encourage you to find suitable code snippet in the examples folder :)
+
+```py
+# Graph download
+
+id = "44915"  # or 'R{id}'
+graph = DataGetter.download_graph(id=id)
+
+#Viewing the theoretical acceleration for a graph
+#Visually select the “alpha” range for testing
+N = graph.number_of_nodes()
+plot_theoretical_acceleration(N, (16, 6))
+
+#Graph testing
+#The important thing here is to pick the “resolution” parameter. See logs.
+
+cityResult = city_tests.test_graph(
+    graph, f"{id}", id, logs=False, alg="dijkstra", alpha_range=(0.04, 0.1)
+)
+
+#Creating the object to be searched.
+graphModel = graph_generator.generate_layer(graph, resolution=20)
+
+#Final distance, path by node and map display (map optional)
+point_from = 2791569568
+point_to = 1666166594
+distance, path, maps = graphModel.find_path(
+    point_from, point_to, draw_path=True, visible=True
+)
+```
+
+
 
 # How it works:
 1. Creation of a new graph based on centers of initial graph clusters

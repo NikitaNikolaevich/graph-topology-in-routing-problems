@@ -56,12 +56,12 @@ def plot_acceleration(ax, alpha, speed_up, N, a0, func, max_alpha=1):
     None
     """
     alpha1 = np.linspace(1 / N, max_alpha, 1000)
-    ax.plot(alpha1, func(alpha1, N), '--', label='Theoretical acceleration', markersize=30, linewidth=8)
+    ax.plot(alpha1, func(alpha1, N), '--', label='Theoretical acceleration', markersize=20, linewidth=5)
     idx = np.argwhere(alpha <= max_alpha)
     ax.plot(alpha[idx], speed_up[idx], 'o', label='Real acceleration', markersize=20)
-    ax.axvline(x=a0, ymin=0, c='r', linestyle=':', label=r'$\alpha^*$', linewidth=6)
-    ax.set_xlabel(r'$\alpha$')
-    ax.set_ylabel(r'$\gamma$')
+    ax.axvline(x=a0, ymin=0, c='r', linestyle=':', label=r'$\alpha^*$', linewidth=5)
+    ax.set_xlabel(r'$\frac{\text{number of clusters}}{\text{number of nodes}}$, $\alpha$')
+    ax.set_ylabel(r'Acceleration, $\gamma$')
     ax.legend()
 
 # Функция для отрисовки боксплота ошибок
@@ -91,7 +91,7 @@ def plot_boxplot(ax, points_results, labels):
     ax.boxplot(errors, labels=labels, showfliers=False, vert=True, patch_artist=True,
                medianprops=medianprops, boxprops=boxprops, whiskerprops=whiskerprops, capprops=capprops)
     ax.tick_params(axis='x', labelrotation=60)
-    ax.set_xlabel(r'$\alpha$')
+    ax.set_xlabel(r'$\frac{\text{number of clusters}}{\text{number of nodes}}$, $\alpha$')
     ax.set_ylabel('error, %')
 
 def theoretical_max_acceleration_nodes(nodes):
@@ -202,7 +202,7 @@ def plot_loglog(x_data, y_data, theoretical_curve, x_label, y_label, legend_real
     plt.legend()
     plt.show()
 
-def plot_city_results(res, N, max_alpha=0.5, alpha_threshold=0.5):
+def plot_city_results(res, N, max_alpha=1, alpha_threshold=0.5):
     """
     Plot the results for a city.
 
@@ -213,7 +213,7 @@ def plot_city_results(res, N, max_alpha=0.5, alpha_threshold=0.5):
     N : int
         The number of nodes.
     max_alpha : float, optional
-        The maximum alpha value (default is 0.5).
+        The maximum alpha value (default is 1).
     alpha_threshold : float, optional
         The alpha threshold for filtering the results (default is 0.5).
     """
@@ -232,7 +232,8 @@ def plot_city_results(res, N, max_alpha=0.5, alpha_threshold=0.5):
     plot_acceleration(axs[0], alpha, speed_up, N, a0, theoretical_acceleration, max_alpha)
 
     for i, (x, y, resolution) in enumerate(zip(alpha, speed_up, resolutions)):
-        axs[0].annotate(f'{resolution:.2f}', (x, y), textcoords="offset points", xytext=(0,10), ha='center')
+        axs[0].annotate(f'{resolution:.2f}', (x, y), textcoords="offset points", xytext=(0,0), ha='center', fontsize=6)
+        axs[0].scatter(x, y, s=30, marker='o')
 
     # Форматирование лейблов для боксплота
     labels = format_labels(res.points_results, alpha_threshold)
@@ -259,8 +260,10 @@ def plot_theoretical_acceleration(N, figsize=(16, 9), max_alpha=1.0):
     acceleration = [theoretical_acceleration(alpha, N) for alpha in alphas]
     a0 = optimal_a_star(N)
     ax.plot(alphas, acceleration, '--')  # Добавляем график
-    ax.axvline(x=a0, ymin=0, c='r', linestyle=':', label=r'$\alpha^*$', linewidth=6)
-    ax.set_xlabel('Alpha')  # Добавляем метку для оси x
-    ax.set_ylabel('Acceleration')  # Добавляем метку для оси y
-    ax.set_title('Theoretical Acceleration for Alpha')  # Добавляем заголовок
+    ax.axvline(x=a0, ymin=0, c='r', linestyle=':', label=rf'$\alpha^*$ = {a0:.3}', linewidth=6)
+    # ax.set_xlabel(r'$\alpha$')  # Добавляем метку для оси x
+    ax.set_xlabel(r'$\frac{\text{number of clusters}}{\text{number of nodes}}$, $\alpha$')
+    ax.set_ylabel(r'Acceleration, $\gamma$')  # Добавляем метку для оси y
+    ax.set_title(r'Theoretical Acceleration for $\alpha$')  # Добавляем заголовок
+    ax.legend()
     plt.show()  # Показываем график
