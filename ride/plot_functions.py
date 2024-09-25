@@ -202,7 +202,7 @@ def plot_loglog(x_data, y_data, theoretical_curve, x_label, y_label, legend_real
     plt.legend()
     plt.show()
 
-def plot_city_results(res, N, max_alpha=1, alpha_threshold=0.5):
+def plot_city_results(res, N, max_alpha=1, alpha_threshold=0.5, plot_boxplot=True):
     """
     Plot the results for a city.
 
@@ -216,10 +216,17 @@ def plot_city_results(res, N, max_alpha=1, alpha_threshold=0.5):
         The maximum alpha value (default is 1).
     alpha_threshold : float, optional
         The alpha threshold for filtering the results (default is 0.5).
+    plot_boxplot : bool, optional
+        Whether to plot the boxplot (default is True).
     """
-    fig, axs = plt.subplots(2, 1)
-    fig.set_figwidth(15)
-    fig.set_figheight(15)
+    if plot_boxplot:
+        fig, axs = plt.subplots(2, 1)
+        fig.set_figwidth(15)
+        fig.set_figheight(15)
+    else:
+        fig, axs = plt.subplots(1, 1)
+        fig.set_figwidth(10)
+        fig.set_figheight(10)
 
     alpha = np.array([p.alpha for p in res.points_results])
     speed_up = np.array([p.speed_up[0] for p in res.points_results])
@@ -235,14 +242,16 @@ def plot_city_results(res, N, max_alpha=1, alpha_threshold=0.5):
         axs[0].annotate(f'{resolution:.2f}', (x, y), textcoords="offset points", xytext=(0,0), ha='center', fontsize=6)
         axs[0].scatter(x, y, s=30, marker='o')
 
-    # Форматирование лейблов для боксплота
-    labels = format_labels(res.points_results, alpha_threshold)
+    if plot_boxplot:
+        # Форматирование лейблов для боксплота
+        labels = format_labels(res.points_results, alpha_threshold)
 
-    # Построение боксплота ошибок
-    plot_boxplot(axs[1], res.points_results, labels)
+        # Построение боксплота ошибок
+        plot_boxplot(axs[1], res.points_results, labels)
 
     fig.suptitle(fr'$N_0$={N}')
     plt.show()
+
 
 def plot_theoretical_acceleration(N, figsize=(16, 9), max_alpha=1.0):
     """

@@ -404,7 +404,7 @@ class GraphLayer:
                  cluster_to_neighboring_cluster: dict[int, set[int]],
                  cluster_to_bridge_points: dict[int, set[int]],
                  cluster_to_center: dict[int, int],
-                 centroids_graph: nx.Graph
+                 centroids_graph: nx.Graph,
                  ):
         self.cluster_to_center = cluster_to_center
         self.cluster_to_bridge_points = cluster_to_bridge_points
@@ -594,82 +594,134 @@ class GraphLayer:
     def generate_colors(self, num_colors):
         return [self.random_color_hex() for _ in range(num_colors)]
     
-    def draw_path_through_clusters(self, from_node: int, to_node: int, alg: str = 'dijkstra', markersize=5, alpha=0.7, visible=False, save=False):
-        """
-        Находит путь между двумя точками и отображает только те точки и кластеры, через которые проходит маршрут.
+    # def draw_path_through_clusters(self, from_node: int, to_node: int, alg: str = 'dijkstra', markersize=5, alpha=0.7, visible=False, save=False):
+    #     """
+    #     Находит путь между двумя точками и отображает только те точки и кластеры, через которые проходит маршрут.
         
-        Parameters:
-        -----------
-        from_node : int
-            Стартовый узел.
-        to_node : int
-            Конечный узел.
-        alg : str, optional
-            Алгоритм для поиска маршрута (по умолчанию 'dijkstra').
-        markersize : int, optional
-            Размер маркеров для точек.
-        visible : bool, optional
-            Если True, отображает карту.
-        save : bool, optional
-            Если True, сохраняет изображение карты.
-        """
+    #     Parameters:
+    #     -----------
+    #     from_node : int
+    #         Стартовый узел.
+    #     to_node : int
+    #         Конечный узел.
+    #     alg : str, optional
+    #         Алгоритм для поиска маршрута (по умолчанию 'dijkstra').
+    #     markersize : int, optional
+    #         Размер маркеров для точек.
+    #     visible : bool, optional
+    #         Если True, отображает карту.
+    #     save : bool, optional
+    #         Если True, сохраняет изображение карты.
+    #     """
 
+    #     # Шаг 1: Находим путь между двумя точками
+    #     distance, nodes = self.find_path(from_node, to_node, alg)
+        
+        
+    #     # Шаг 2: Определяем кластеры, через которые проходит маршрут
+    #     clusters_passed = set(self.graph.nodes[node]['cluster'] for node in nodes)
+        
+    #     points = []
+    #     colors = []
+
+    #     # Преобразование координат EPSG:4326 в EPSG:3857
+    #     transformer = Transformer.from_crs("EPSG:4326", "EPSG:3857", always_xy=True)
+
+    #     # Генерация цветов для кластеров, через которые прошел маршрут
+    #     cluster_colors = self.generate_colors(len(clusters_passed))
+    #     cluster_color_map = {cluster: color for cluster, color in zip(clusters_passed, cluster_colors)}
+
+    #     # Шаг 3: Отображаем только точки тех кластеров, через которые прошел маршрут
+    #     for cluster in clusters_passed:
+    #         for node in self.communities[cluster]:
+    #             x, y = self.graph.nodes[node]['x'], self.graph.nodes[node]['y']
+    #             x_3857, y_3857 = transformer.transform(x, y)  # Преобразуем координаты в EPSG:3857
+    #             points.append(Point(x_3857, y_3857))
+    #             colors.append(cluster_color_map[cluster])  # Добавляем цвет для каждой точки
+
+    #     # Создаем GeoDataFrame для точек
+    #     gdf_points = gpd.GeoDataFrame(geometry=points)
+
+    #     # Отображаем точки
+    #     ax = gdf_points.plot(marker='o', color=colors, markersize=markersize, figsize=(10, 10), alpha=alpha)
+
+    #     # Шаг 4: Отображаем сам маршрут
+    #     path_x = [self.graph.nodes[node]['x'] for node in nodes]
+    #     path_y = [self.graph.nodes[node]['y'] for node in nodes]
+
+    #     # Преобразуем координаты маршрута
+    #     path_coords = [transformer.transform(x, y) for x, y in zip(path_x, path_y)]
+
+    #     # Создаем GeoDataFrame для маршрута
+    #     gdf_path = gpd.GeoDataFrame(geometry=[LineString(path_coords)])
+
+    #     # Отображаем маршрут поверх точек
+    #     gdf_path.plot(ax=ax, color='red', linewidth=2, label=f'Custom Path (Distance: {distance/1000:.2f} km)')
+
+    #     # Добавляем подложку карты
+    #     ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik)
+
+    #     # Убираем оси
+    #     ax.set_axis_off()
+
+    #     # Добавляем легенду
+    #     plt.legend()
+
+    #     # Сохраняем или показываем карту
+    #     if save:
+    #         plt.savefig("path_through_clusters.png")
+
+    #     if visible:
+    #         plt.show()
+
+    def draw_path_through_clusters(self, from_node: int, to_node: int, alg: str = 'dijkstra', markersize=5, alpha=0.7, visible=False, save=False):
         # Шаг 1: Находим путь между двумя точками
         distance, nodes = self.find_path(from_node, to_node, alg)
-        
+        distance_original, nodes_original = self.find_path_original_graph(from_node, to_node)
+
         # Шаг 2: Определяем кластеры, через которые проходит маршрут
         clusters_passed = set(self.graph.nodes[node]['cluster'] for node in nodes)
-        
-        points = []
-        colors = []
+        clusters_passed_original = set(self.graph.nodes[node]['cluster'] for node in nodes_original)
 
-        # Преобразование координат EPSG:4326 в EPSG:3857
-        transformer = Transformer.from_crs("EPSG:4326", "EPSG:3857", always_xy=True)
+        # Создаем карту
+        m = folium.Map(location=[self.graph.nodes[from_node]['y'], self.graph.nodes[from_node]['x']], zoom_start=12)
 
-        # Генерация цветов для кластеров, через которые прошел маршрут
+        # Создаем слой для кластеров find_path
+        cluster_layer = folium.FeatureGroup(name='Clusters (find_path)')
         cluster_colors = self.generate_colors(len(clusters_passed))
         cluster_color_map = {cluster: color for cluster, color in zip(clusters_passed, cluster_colors)}
-
-        # Шаг 3: Отображаем только точки тех кластеров, через которые прошел маршрут
         for cluster in clusters_passed:
             for node in self.communities[cluster]:
-                x, y = self.graph.nodes[node]['x'], self.graph.nodes[node]['y']
-                x_3857, y_3857 = transformer.transform(x, y)  # Преобразуем координаты в EPSG:3857
-                points.append(Point(x_3857, y_3857))
-                colors.append(cluster_color_map[cluster])  # Добавляем цвет для каждой точки
+                folium.CircleMarker([self.graph.nodes[node]['y'], self.graph.nodes[node]['x']], radius=5, color=cluster_color_map[cluster], opacity=alpha, fill=True).add_to(cluster_layer)
+        cluster_layer.add_to(m)
 
-        # Создаем GeoDataFrame для точек
-        gdf_points = gpd.GeoDataFrame(geometry=points)
+        # Создаем слой для маршрута find_path
+        path_layer = folium.FeatureGroup(name='Path (find_path)')
+        path_coords = [[self.graph.nodes[node]['y'], self.graph.nodes[node]['x']] for node in nodes]
+        folium.PolyLine(path_coords, color='red', weight=2).add_to(path_layer)
+        path_layer.add_to(m)
 
-        # Отображаем точки
-        ax = gdf_points.plot(marker='o', color=colors, markersize=markersize, figsize=(10, 10), alpha=alpha)
+        # Создаем слой для кластеров find_path_original_graph
+        cluster_layer_original = folium.FeatureGroup(name='Clusters (find_path_original_graph)')
+        cluster_colors_original = self.generate_colors(len(clusters_passed_original))
+        cluster_color_map_original = {cluster: color for cluster, color in zip(clusters_passed_original, cluster_colors_original)}
+        for cluster in clusters_passed_original:
+            for node in self.communities[cluster]:
+                folium.CircleMarker([self.graph.nodes[node]['y'], self.graph.nodes[node]['x']], radius=5, color=cluster_color_map_original[cluster], opacity=alpha, fill=True).add_to(cluster_layer_original)
+        cluster_layer_original.add_to(m)
 
-        # Шаг 4: Отображаем сам маршрут
-        path_x = [self.graph.nodes[node]['x'] for node in nodes]
-        path_y = [self.graph.nodes[node]['y'] for node in nodes]
+        # Создаем слой для маршрута find_path_original_graph
+        path_layer_original = folium.FeatureGroup(name='Path (find_path_original_graph)')
+        path_coords_original = [[self.graph.nodes[node]['y'], self.graph.nodes[node]['x']] for node in nodes_original]
+        folium.PolyLine(path_coords_original, color='blue', weight=2).add_to(path_layer_original)
+        path_layer_original.add_to(m)
 
-        # Преобразуем координаты маршрута
-        path_coords = [transformer.transform(x, y) for x, y in zip(path_x, path_y)]
-
-        # Создаем GeoDataFrame для маршрута
-        gdf_path = gpd.GeoDataFrame(geometry=[LineString(path_coords)])
-
-        # Отображаем маршрут поверх точек
-        gdf_path.plot(ax=ax, color='red', linewidth=2, label=f'Маршрут {alg} (длина: {distance:.2f})')
-
-        # Добавляем подложку карты
-        ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik)
-
-        # Убираем оси
-        ax.set_axis_off()
-
-        # Добавляем легенду
-        plt.legend()
+        # Добавляем слой управления
+        folium.LayerControl().add_to(m)
 
         # Сохраняем или показываем карту
         if save:
-            plt.savefig("path_through_clusters.png")
+            m.save('path_through_clusters.html')
 
         if visible:
-            plt.show()
-
+            return m
