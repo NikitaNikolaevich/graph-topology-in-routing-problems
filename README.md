@@ -12,15 +12,13 @@
 The RIDE is a python library for accelerating Deikstra task on any graphs with hierarchical method involving solving a problem on simpler graphs with further combining solutions into a common one. The method is based on the division of the graph into clusters. By using this division, you can eliminate many sub optimal route constructions and achieve multiple-time acceleration without significant loss of accuracy. More information about method ine can find soon in corresponding _article_.
 
 ***It is worth noting that this method works for both transport and abstract graphs.***
-<!-- 
-<img src=https://github.com/NikitaNikolaevich/graph-topology-in-routing-problems/blob/main/images/milan.png width="600"/>
--->
+
 
 # Installing
 
 to install via pip without listing on pipy do: 
 ```
-!pip install git+https://github.com/NikitaNikolaevich/graph-topology-in-routing-problems.git@main
+!pip install git + git_repo_adress
 ```
 
 # Quick start
@@ -54,7 +52,6 @@ distance, path, maps = graphModel.find_path(
     point_from, point_to, draw_path=True, visible=True
 )
 ```
-
 
 
 # How it works:
