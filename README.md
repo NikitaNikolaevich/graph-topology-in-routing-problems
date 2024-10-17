@@ -1,7 +1,3 @@
-<!--
-<img src=https://github.com/NikitaNikolaevich/graph-topology-in-routing-problems/blob/main/images/speed.png/>
--->
-
 # RIDE
 
 
