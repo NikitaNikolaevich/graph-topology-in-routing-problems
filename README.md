@@ -3,10 +3,7 @@
 -->
 
 # RIDE
-[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
-[![PythonVersion](https://img.shields.io/badge/python-3.11-blue)](https://pypi.org/project/scikit-learn/)
-[![Documentation Status](https://readthedocs.org/projects/graph-topology-in-routing-problems/badge/?version=latest)](https://graph-topology-in-routing-problems.readthedocs.io/en/latest/?badge=latest)
-<!-- [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/NikitaNikolaevich/graph-topology-in-routing-problems/main?urlpath=https%3A%2F%2Fgithub.com%2FNikitaNikolaevich%2Fgraph-topology-in-routing-problems%2Fblob%2Fdocs%2Fexamples%2Fexamples.ipynb) -->
+
 
 <img align="right" src="./images/logo2.png" alt="Your Banner" width="30%">
 
